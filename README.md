@@ -107,7 +107,7 @@ lib/
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/iptv-flutter-app.git
+   git clone https://github.com/Dabash99/IPTV_withclaude
    cd iptv-flutter-app
    ```
 
@@ -201,12 +201,7 @@ Series: {url}/series/{user}/{pass}/{episode_id}.{ext}
 - [x] Favorites system
 - [x] Arabic RTL support
 - [ ] Continue Watching (resume playback)
-- [ ] External player integration (VLC, MX Player)
-- [ ] M3U playlist parser (fallback)
-- [ ] Parental controls
-- [ ] Multi-profile support
 - [ ] Download for offline viewing
-- [ ] Chromecast support
 
 ---
 
@@ -278,7 +273,7 @@ This project is for **educational purposes only**. The app itself does not provi
 
 ## 📧 Contact
 
-**Your Name** — [@Ahmed Dabash](https://github.com/Dabash99)
+**Ahmed Dabash** — [@Dabash99](https://github.com/Dabash99)
 
 
 ---
