@@ -296,7 +296,7 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                       child: Row(
                         children: [
                           _CircleBtn(
-                            icon: SDGAIconsStroke.arrowRight02,
+                            icon: SDGAIconsStroke.arrowLeft01,
                             onTap: () => Navigator.pop(context),
                           ),
                           const Spacer(),

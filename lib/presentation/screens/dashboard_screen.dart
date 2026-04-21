@@ -158,10 +158,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             _SectionTitle(prefix: 'NEW', suffix: 'MOVIES'),
-                            _FilterToggle(
-                              selected: _filter,
-                              onChanged: (v) => setState(() => _filter = v),
-                            ),
+
                           ],
                         ),
                       ),

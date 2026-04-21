@@ -69,7 +69,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                     child: Row(
                       children: [
                         _CircleBtn(
-                          icon: SDGAIconsStroke.arrowRight02,
+                          icon: SDGAIconsStroke.arrowLeft01,
                           onTap: () => Navigator.pop(context),
                         ),
                         const Spacer(),

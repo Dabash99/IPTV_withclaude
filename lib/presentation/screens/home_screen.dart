@@ -242,7 +242,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                           child: Center(
                             child: SDGAIcon(
-                              SDGAIconsStroke.arrowRight02,
+                              SDGAIconsStroke.arrowLeft01,
                               color: Colors.white,
                               size: 18.sp,
                             ),
@@ -547,7 +547,7 @@ class _ProfileTile extends StatelessWidget {
                 ),
               ),
               SDGAIcon(
-                SDGAIconsStroke.arrowLeft02,
+                SDGAIconsStroke.arrowLeft01,
                 color: AppColors.textMuted,
                 size: 16.sp,
               ),
@@ -599,7 +599,7 @@ class _ProfileScreen extends StatelessWidget {
                       ),
                       child: Center(
                         child: SDGAIcon(
-                          SDGAIconsStroke.arrowRight02,
+                          SDGAIconsStroke.arrowLeft01,
                           color: Colors.white,
                           size: 18.sp,
                         ),

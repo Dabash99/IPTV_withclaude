@@ -121,7 +121,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         elevation: 0,
         leading: IconButton(
           icon: SDGAIcon(
-            SDGAIconsStroke.arrowRight02,
+            SDGAIconsStroke.arrowLeft01,
             color: Colors.white,
             size: 22.sp,
           ),

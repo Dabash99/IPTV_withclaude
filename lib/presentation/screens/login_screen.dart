@@ -241,7 +241,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                   SizedBox(width: 10.w),
                                   SDGAIcon(
-                                    SDGAIconsStroke.arrowLeft02,
+                                    SDGAIconsStroke.arrowLeft01,
                                     color: Colors.white,
                                     size: 18.sp,
                                   ),

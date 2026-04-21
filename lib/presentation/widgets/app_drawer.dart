@@ -257,7 +257,7 @@ class _DrawerItem extends StatelessWidget {
               ),
               const Spacer(),
               SDGAIcon(
-                SDGAIconsStroke.arrowLeft02,
+                SDGAIconsStroke.arrowLeft01,
                 color: AppColors.textMuted,
                 size: 14.sp,
               ),
