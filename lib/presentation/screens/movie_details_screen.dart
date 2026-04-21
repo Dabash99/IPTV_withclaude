@@ -10,225 +10,334 @@ import '../../domain/repositories/iptv_repository.dart';
 import '../cubits/favorites_cubit.dart';
 import 'video_player_screen.dart';
 
-class MovieDetailsScreen extends StatelessWidget {
+class MovieDetailsScreen extends StatefulWidget {
   final Movie movie;
   const MovieDetailsScreen({super.key, required this.movie});
 
   @override
+  State<MovieDetailsScreen> createState() => _MovieDetailsScreenState();
+}
+
+class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
+  bool _plotExpanded = false;
+
+  @override
   Widget build(BuildContext context) {
+    final m = widget.movie;
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            backgroundColor: AppColors.background,
-            expandedHeight: 340.h,
-            pinned: true,
-            leading: Padding(
-              padding: EdgeInsets.all(8.w),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.4),
-                  shape: BoxShape.circle,
-                ),
-                child: IconButton(
-                  icon: SDGAIcon(
-                    SDGAIconsStroke.arrowRight02,
-                    color: Colors.white,
-                    size: 20.sp,
-                  ),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ),
-            ),
-            actions: [
-              BlocBuilder<FavoritesCubit, FavoritesState>(
-                builder: (ctx, _) {
-                  final cubit = ctx.read<FavoritesCubit>();
-                  final isFav = cubit.isFavorite(movie.streamId, FavoriteType.movie);
-                  return Padding(
-                    padding: EdgeInsets.all(8.w),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.4),
-                        shape: BoxShape.circle,
-                      ),
-                      child: IconButton(
-                        icon: SDGAIcon(
-                          isFav
-                              ? SDGAIconsBulk.favourite
-                              : SDGAIconsStroke.favourite,
-                          color: isFav ? AppColors.error : Colors.white,
-                          size: 22.sp,
-                        ),
-                        onPressed: () => cubit.toggle(FavoriteItem(
-                          id: movie.streamId,
-                          name: movie.name,
-                          image: movie.streamIcon,
-                          type: FavoriteType.movie,
-                          extension: movie.containerExtension,
-                        )),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ],
-            flexibleSpace: FlexibleSpaceBar(
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  movie.streamIcon.isEmpty
-                      ? Container(color: AppColors.cardLight)
-                      : CachedNetworkImage(
-                    imageUrl: movie.streamIcon,
-                    fit: BoxFit.cover,
-                    errorWidget: (_, __, ___) => Container(color: AppColors.cardLight),
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.black.withOpacity(0.4),
-                          Colors.transparent,
-                          AppColors.background.withOpacity(0.8),
-                          AppColors.background,
-                        ],
-                        stops: const [0.0, 0.3, 0.8, 1.0],
-                      ),
-                    ),
-                  ),
-                ],
+      body: Stack(
+        children: [
+          // Blurred backdrop from poster
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.35,
+              child: m.streamIcon.isEmpty
+                  ? Container(color: AppColors.cardLight)
+                  : CachedNetworkImage(
+                imageUrl: m.streamIcon,
+                fit: BoxFit.cover,
+                errorWidget: (_, __, ___) => Container(color: AppColors.cardLight),
               ),
             ),
           ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.all(16.w),
+          // Vertical gradient wash
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    AppColors.background.withOpacity(0.5),
+                    AppColors.background.withOpacity(0.9),
+                    AppColors.background,
+                  ],
+                  stops: const [0.0, 0.4, 1.0],
+                ),
+              ),
+            ),
+          ),
+          SafeArea(
+            child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    movie.name,
-                    style: TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 24.sp,
-                      fontWeight: FontWeight.w800,
-                      height: 1.2,
-                    ),
-                  ),
-                  SizedBox(height: 12.h),
-
-                  // Meta chips
-                  Wrap(
-                    spacing: 10.w,
-                    runSpacing: 6.h,
-                    children: [
-                      if (movie.rating > 0)
-                        _MetaChip(
-                          icon: SDGAIconsBulk.star,
-                          iconColor: AppColors.warning,
-                          label: movie.rating.toStringAsFixed(1),
+                  // Top nav
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 8.h),
+                    child: Row(
+                      children: [
+                        _CircleBtn(
+                          icon: SDGAIconsStroke.arrowRight02,
+                          onTap: () => Navigator.pop(context),
                         ),
-                      if (movie.releaseDate?.isNotEmpty == true)
-                        _MetaChip(
-                          icon: SDGAIconsStroke.calendar03,
-                          label: movie.releaseDate!,
-                        ),
-                      if (movie.durationSecs != null && movie.durationSecs! > 0)
-                        _MetaChip(
-                          icon: SDGAIconsStroke.clock01,
-                          label: '${(movie.durationSecs! / 60).round()} دقيقة',
-                        ),
-                    ],
-                  ),
-                  SizedBox(height: 24.h),
-
-                  // Play button with glow
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(14.r),
-                      boxShadow: AppColors.primaryGlow,
-                    ),
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 54.h,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14.r),
+                        const Spacer(),
+                        Text(
+                          'Movie',
+                          style: TextStyle(
+                            color: AppColors.textPrimary,
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w700,
                           ),
-                          elevation: 0,
                         ),
-                        onPressed: () {
-                          final repo = context.read<IptvRepository>();
-                          final url = repo.buildMovieStreamUrl(
-                            movie.streamId,
-                            movie.containerExtension,
-                          );
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => VideoPlayerScreen(
-                                url: url,
-                                title: movie.name,
-                                isLive: false,
-                              ),
-                            ),
-                          );
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SDGAIcon(
-                              SDGAIconsBulk.play,
-                              color: Colors.white,
-                              size: 22.sp,
-                            ),
-                            SizedBox(width: 8.w),
-                            Text(
-                              'تشغيل الفيلم',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 15.sp,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ],
+                        const Spacer(),
+                        BlocBuilder<FavoritesCubit, FavoritesState>(
+                          builder: (ctx, _) {
+                            final cubit = ctx.read<FavoritesCubit>();
+                            final isFav = cubit.isFavorite(m.streamId, FavoriteType.movie);
+                            return _CircleBtn(
+                              icon: isFav
+                                  ? SDGAIconsBulk.favourite
+                                  : SDGAIconsStroke.favourite,
+                              color: isFav ? AppColors.error : Colors.white,
+                              onTap: () => cubit.toggle(FavoriteItem(
+                                id: m.streamId,
+                                name: m.name,
+                                image: m.streamIcon,
+                                type: FavoriteType.movie,
+                                extension: m.containerExtension,
+                              )),
+                            );
+                          },
                         ),
-                      ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 20.h),
+
+                  // Poster + title + buttons
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Poster
+                        Container(
+                          width: 120.w,
+                          height: 170.h,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(14.r),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.5),
+                                blurRadius: 20,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(14.r),
+                            child: m.streamIcon.isEmpty
+                                ? Container(
+                              color: AppColors.cardLight,
+                              child: Center(
+                                child: SDGAIcon(
+                                  SDGAIconsBulk.video01,
+                                  color: AppColors.textMuted,
+                                  size: 32.sp,
+                                ),
+                              ),
+                            )
+                                : CachedNetworkImage(
+                              imageUrl: m.streamIcon,
+                              fit: BoxFit.cover,
+                              errorWidget: (_, __, ___) =>
+                                  Container(color: AppColors.cardLight),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 16.w),
+                        // Title + genre + duration + buttons
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                m.name,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: AppColors.textPrimary,
+                                  fontSize: 22.sp,
+                                  fontWeight: FontWeight.w800,
+                                  height: 1.2,
+                                ),
+                              ),
+                              SizedBox(height: 8.h),
+                              if (m.genre?.isNotEmpty == true)
+                                Text(
+                                  m.genre!,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: AppColors.textSecondary,
+                                    fontSize: 12.sp,
+                                  ),
+                                ),
+                              SizedBox(height: 6.h),
+                              if (m.durationSecs != null && m.durationSecs! > 0)
+                                Text(
+                                  '${(m.durationSecs! / 60).round()} min',
+                                  style: TextStyle(
+                                    color: AppColors.textMuted,
+                                    fontSize: 12.sp,
+                                  ),
+                                ),
+                              SizedBox(height: 14.h),
+
+                              // Play + Trailer buttons
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _PlayButton(
+                                      onTap: () {
+                                        final repo = context.read<IptvRepository>();
+                                        final url = repo.buildMovieStreamUrl(
+                                          m.streamId,
+                                          m.containerExtension,
+                                        );
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => VideoPlayerScreen(
+                                              url: url,
+                                              title: m.name,
+                                              isLive: false,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                  SizedBox(width: 8.w),
+                                  _TrailerButton(onTap: () {}),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   SizedBox(height: 28.h),
 
-                  if (movie.genre?.isNotEmpty == true)
-                    _Section(
-                      icon: SDGAIconsStroke.tag01,
-                      title: 'النوع',
-                      content: movie.genre!,
+                  // Metadata table (Release / Director / Rating)
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: Row(
+                      children: [
+                        if (m.releaseDate?.isNotEmpty == true)
+                          Expanded(
+                            child: _MetaColumn(
+                              label: 'Release Date',
+                              value: m.releaseDate!,
+                            ),
+                          ),
+                        if (m.director?.isNotEmpty == true)
+                          Expanded(
+                            child: _MetaColumn(
+                              label: 'Director',
+                              value: m.director!,
+                            ),
+                          ),
+                        if (m.rating > 0)
+                          Expanded(
+                            child: _MetaColumn(
+                              label: 'Rating',
+                              value: '⭐ ${m.rating.toStringAsFixed(1)}',
+                            ),
+                          ),
+                      ],
                     ),
-                  if (movie.director?.isNotEmpty == true)
-                    _Section(
-                      icon: SDGAIconsStroke.userEdit01,
-                      title: 'المخرج',
-                      content: movie.director!,
+                  ),
+                  SizedBox(height: 28.h),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: Container(height: 1, color: AppColors.border),
+                  ),
+                  SizedBox(height: 20.h),
+
+                  // Cast chips
+                  if (m.cast?.isNotEmpty == true) ...[
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                      child: Text(
+                        'Cast',
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
-                  if (movie.cast?.isNotEmpty == true)
-                    _Section(
-                      icon: SDGAIconsStroke.userGroup,
-                      title: 'البطولة',
-                      content: movie.cast!,
+                    SizedBox(height: 10.h),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                      child: Wrap(
+                        spacing: 8.w,
+                        runSpacing: 8.h,
+                        children: m.cast!
+                            .split(',')
+                            .map((e) => e.trim())
+                            .where((e) => e.isNotEmpty)
+                            .take(8)
+                            .map((name) => _CastChip(name: name))
+                            .toList(),
+                      ),
                     ),
-                  if (movie.plot?.isNotEmpty == true)
-                    _Section(
-                      icon: SDGAIconsStroke.bookOpen01,
-                      title: 'القصة',
-                      content: movie.plot!,
-                      multiline: true,
+                    SizedBox(height: 24.h),
+                  ],
+
+                  // Plot
+                  if (m.plot?.isNotEmpty == true) ...[
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                      child: Text(
+                        'Plot',
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
+                    SizedBox(height: 8.h),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                      child: GestureDetector(
+                        onTap: () => setState(() => _plotExpanded = !_plotExpanded),
+                        child: RichText(
+                          text: TextSpan(
+                            style: TextStyle(
+                              color: AppColors.textPrimary,
+                              fontSize: 13.sp,
+                              height: 1.7,
+                              fontFamily: 'Cairo',
+                            ),
+                            children: [
+                              TextSpan(
+                                text: _plotExpanded
+                                    ? m.plot!
+                                    : (m.plot!.length > 180
+                                    ? '${m.plot!.substring(0, 180)}… '
+                                    : m.plot!),
+                              ),
+                              if (m.plot!.length > 180)
+                                TextSpan(
+                                  text: _plotExpanded ? ' show less' : 'more',
+                                  style: TextStyle(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                  SizedBox(height: 100.h),
                 ],
               ),
             ),
@@ -239,88 +348,159 @@ class MovieDetailsScreen extends StatelessWidget {
   }
 }
 
-class _MetaChip extends StatelessWidget {
+class _CircleBtn extends StatelessWidget {
   final SDGAIconData icon;
-  final Color? iconColor;
-  final String label;
-  const _MetaChip({required this.icon, required this.label, this.iconColor});
+  final Color color;
+  final VoidCallback onTap;
+
+  const _CircleBtn({
+    required this.icon,
+    required this.onTap,
+    this.color = Colors.white,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(8.r),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SDGAIcon(icon, size: 14.sp, color: iconColor ?? AppColors.textSecondary),
-          SizedBox(width: 5.w),
-          Text(
-            label,
-            style: TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 12.sp,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 40.w,
+        height: 40.w,
+        decoration: BoxDecoration(
+          color: AppColors.surface.withOpacity(0.7),
+          shape: BoxShape.circle,
+          border: Border.all(color: AppColors.border.withOpacity(0.5)),
+        ),
+        child: Center(
+          child: SDGAIcon(icon, color: color, size: 18.sp),
+        ),
       ),
     );
   }
 }
 
-class _Section extends StatelessWidget {
-  final SDGAIconData icon;
-  final String title;
-  final String content;
-  final bool multiline;
-
-  const _Section({
-    required this.icon,
-    required this.title,
-    required this.content,
-    this.multiline = false,
-  });
+class _PlayButton extends StatelessWidget {
+  final VoidCallback onTap;
+  const _PlayButton({required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 20.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              SDGAIcon(icon, color: AppColors.accent, size: 16.sp),
-              SizedBox(width: 8.w),
-              Text(
-                title,
-                style: TextStyle(
-                  color: AppColors.textMuted,
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.3,
-                ),
-              ),
-            ],
+    return SizedBox(
+      height: 44.h,
+      child: ElevatedButton(
+        onPressed: onTap,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(100.r),
           ),
-          SizedBox(height: 8.h),
-          Padding(
-            padding: EdgeInsets.only(right: 24.w),
-            child: Text(
-              content,
+          elevation: 0,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SDGAIcon(SDGAIconsBulk.play, color: Colors.white, size: 18.sp),
+            SizedBox(width: 6.w),
+            Text(
+              'Play',
               style: TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 14.sp,
-                height: multiline ? 1.7 : 1.5,
+                color: Colors.white,
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w700,
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _TrailerButton extends StatelessWidget {
+  final VoidCallback onTap;
+  const _TrailerButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 44.h,
+      child: OutlinedButton(
+        onPressed: onTap,
+        style: OutlinedButton.styleFrom(
+          side: BorderSide(color: AppColors.border),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(100.r),
           ),
-        ],
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
+        ),
+        child: Text(
+          'Trailer',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 13.sp,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MetaColumn extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _MetaColumn({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: AppColors.textMuted,
+            fontSize: 11.sp,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        SizedBox(height: 6.h),
+        Text(
+          value,
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: AppColors.textPrimary,
+            fontSize: 13.sp,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _CastChip extends StatelessWidget {
+  final String name;
+  const _CastChip({required this.name});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 7.h),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(100.r),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Text(
+        name,
+        style: TextStyle(
+          color: AppColors.textPrimary,
+          fontSize: 12.sp,
+          fontWeight: FontWeight.w500,
+        ),
       ),
     );
   }

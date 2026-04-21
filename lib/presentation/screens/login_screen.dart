@@ -4,7 +4,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sdga_icons/sdga_icons.dart';
 import '../../core/constants/app_colors.dart';
 import '../cubits/auth_cubit.dart';
+import '../widgets/app_logo.dart';
 import '../widgets/custom_text_field.dart';
+import '../widgets/poster_backdrop.dart';
 import 'home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -20,6 +22,16 @@ class _LoginScreenState extends State<LoginScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+
+  // Cinematic backdrop posters
+  final _samplePosters = const [
+    'https://image.tmdb.org/t/p/w500/kXfqcdQKsToO0OUXHcrrNCHDBzO.jpg',
+    'https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg',
+    'https://image.tmdb.org/t/p/w500/uDO8zWDhfWwoFdKS4fzkUJt0Rf0.jpg',
+    'https://image.tmdb.org/t/p/w500/62HCnUTziyWcpDaBO2i1DX17ljH.jpg',
+    'https://image.tmdb.org/t/p/w500/1PNd6b2j7HAnT4HmwplkOBnpEQB.jpg',
+    'https://image.tmdb.org/t/p/w500/iADOJ8Zymht2JPMoy3R7xceZprc.jpg',
+  ];
 
   @override
   void dispose() {
@@ -45,43 +57,9 @@ class _LoginScreenState extends State<LoginScreen> {
       backgroundColor: AppColors.background,
       body: Stack(
         children: [
-          // Background accent glow
-          Positioned(
-            top: -100.h,
-            right: -100.w,
-            child: Container(
-              width: 300.w,
-              height: 300.w,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    AppColors.primary.withOpacity(0.25),
-                    Colors.transparent,
-                  ],
-                ),
-              ),
-            ),
+          Positioned.fill(
+            child: PosterBackdrop(posters: _samplePosters, overlayOpacity: 0.85),
           ),
-          Positioned(
-            bottom: -150.h,
-            left: -100.w,
-            child: Container(
-              width: 350.w,
-              height: 350.w,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    AppColors.accent.withOpacity(0.12),
-                    Colors.transparent,
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-          // Content
           BlocConsumer<AuthCubit, AuthState>(
             listener: (context, state) {
               if (state is AuthAuthenticated) {
@@ -114,75 +92,59 @@ class _LoginScreenState extends State<LoginScreen> {
             },
             builder: (context, state) {
               final isLoading = state is AuthLoading;
-
               return SafeArea(
                 child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 32.h),
+                  padding: EdgeInsets.symmetric(horizontal: 28.w, vertical: 24.h),
                   child: Form(
                     key: _formKey,
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         SizedBox(height: 40.h),
 
-                        // Logo with glow
-                        Center(
-                          child: Container(
-                            width: 92.w,
-                            height: 92.w,
-                            decoration: BoxDecoration(
-                              gradient: AppColors.accentGradient,
-                              borderRadius: BorderRadius.circular(24.r),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.primary.withOpacity(0.5),
-                                  blurRadius: 30,
-                                  offset: const Offset(0, 10),
-                                ),
-                                BoxShadow(
-                                  color: AppColors.accent.withOpacity(0.2),
-                                  blurRadius: 40,
-                                  offset: const Offset(0, 0),
-                                ),
-                              ],
-                            ),
-                            child: SDGAIcon(
-                              SDGAIconsBulk.tv01,
-                              color: Colors.white,
-                              size: 48.sp,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 32.h),
+                        // Logo
+                        const AppLogo(size: 48),
+                        SizedBox(height: 60.h),
 
-                        Center(
-                          child: Text(
-                            'أهلاً بيك 👋',
-                            style: TextStyle(
-                              color: AppColors.textPrimary,
-                              fontSize: 28.sp,
-                              fontWeight: FontWeight.w800,
-                              height: 1.2,
-                            ),
+                        // Title
+                        Text(
+                          'Log in to Your',
+                          style: TextStyle(
+                            color: AppColors.textPrimary,
+                            fontSize: 26.sp,
+                            fontWeight: FontWeight.w700,
+                            height: 1.2,
                           ),
                         ),
-                        SizedBox(height: 8.h),
-                        Center(
+                        Text(
+                          'Account',
+                          style: TextStyle(
+                            color: AppColors.textPrimary,
+                            fontSize: 26.sp,
+                            fontWeight: FontWeight.w700,
+                            height: 1.2,
+                          ),
+                        ),
+                        SizedBox(height: 14.h),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 20.w),
                           child: Text(
-                            'سجّل دخولك بحساب الـ Xtream Codes',
+                            'with this application, you can watch your\nbroadcasts using the link you receive ip tv\nservice',
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                               color: AppColors.textSecondary,
-                              fontSize: 14.sp,
+                              fontSize: 12.sp,
+                              height: 1.7,
                             ),
                           ),
                         ),
-                        SizedBox(height: 40.h),
+                        SizedBox(height: 48.h),
 
-                        _label('رابط السيرفر'),
-                        CustomTextField(
+                        // Server URL field
+                        _GlassField(
                           controller: _serverController,
                           hint: 'http://example.com:8080',
-                          sdgaIcon: SDGAIconsBulk.link02,
+                          icon: SDGAIconsBulk.link02,
                           keyboardType: TextInputType.url,
                           textInputAction: TextInputAction.next,
                           validator: (v) {
@@ -190,26 +152,26 @@ class _LoginScreenState extends State<LoginScreen> {
                             return null;
                           },
                         ),
-                        SizedBox(height: 18.h),
+                        SizedBox(height: 14.h),
 
-                        _label('اسم المستخدم'),
-                        CustomTextField(
+                        // Username field
+                        _GlassField(
                           controller: _usernameController,
-                          hint: 'username',
-                          sdgaIcon: SDGAIconsBulk.user,
+                          hint: 'Enter Your Username',
+                          icon: SDGAIconsBulk.user,
                           textInputAction: TextInputAction.next,
                           validator: (v) {
                             if (v == null || v.trim().isEmpty) return 'أدخل اسم المستخدم';
                             return null;
                           },
                         ),
-                        SizedBox(height: 18.h),
+                        SizedBox(height: 14.h),
 
-                        _label('كلمة المرور'),
-                        CustomTextField(
+                        // Password field
+                        _GlassField(
                           controller: _passwordController,
-                          hint: '••••••••',
-                          sdgaIcon: SDGAIconsBulk.lock,
+                          hint: 'Enter Your Password',
+                          icon: SDGAIconsBulk.lock,
                           obscure: _obscurePassword,
                           textInputAction: TextInputAction.done,
                           suffix: IconButton(
@@ -228,24 +190,32 @@ class _LoginScreenState extends State<LoginScreen> {
                             return null;
                           },
                         ),
-                        SizedBox(height: 36.h),
+                        SizedBox(height: 32.h),
 
-                        // Login button with glow
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(14.r),
-                            boxShadow: isLoading ? [] : AppColors.primaryGlow,
-                          ),
-                          child: SizedBox(
-                            width: double.infinity,
+                        // Login button - pill-shaped with gradient
+                        SizedBox(
+                          width: double.infinity,
+                          child: Container(
                             height: 56.h,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(100.r),
+                              boxShadow: isLoading
+                                  ? []
+                                  : [
+                                BoxShadow(
+                                  color: AppColors.primary.withOpacity(0.5),
+                                  blurRadius: 24,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
+                            ),
                             child: ElevatedButton(
                               onPressed: isLoading ? null : _submit,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.primary,
                                 disabledBackgroundColor: AppColors.primary.withOpacity(0.4),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14.r),
+                                  borderRadius: BorderRadius.circular(100.r),
                                 ),
                                 elevation: 0,
                               ),
@@ -262,45 +232,31 @@ class _LoginScreenState extends State<LoginScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    'دخول',
+                                    'Login',
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 16.sp,
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
-                                  SizedBox(width: 8.w),
+                                  SizedBox(width: 10.w),
                                   SDGAIcon(
                                     SDGAIconsStroke.arrowLeft02,
                                     color: Colors.white,
-                                    size: 20.sp,
+                                    size: 18.sp,
                                   ),
                                 ],
                               ),
                             ),
                           ),
                         ),
-                        SizedBox(height: 24.h),
-
-                        // Security note
-                        Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SDGAIcon(
-                                SDGAIconsStroke.shieldEnergy,
-                                color: AppColors.textMuted,
-                                size: 14.sp,
-                              ),
-                              SizedBox(width: 6.w),
-                              Text(
-                                'بياناتك محفوظة بأمان على جهازك فقط',
-                                style: TextStyle(
-                                  color: AppColors.textMuted,
-                                  fontSize: 12.sp,
-                                ),
-                              ),
-                            ],
+                        SizedBox(height: 40.h),
+                        Text(
+                          'Version 1.2.1',
+                          style: TextStyle(
+                            color: AppColors.textMuted,
+                            fontSize: 11.sp,
+                            letterSpacing: 0.5,
                           ),
                         ),
                       ],
@@ -314,16 +270,76 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+}
 
-  Widget _label(String text) => Padding(
-    padding: EdgeInsets.only(bottom: 8.h, right: 4.w),
-    child: Text(
-      text,
-      style: TextStyle(
-        color: AppColors.textPrimary,
-        fontSize: 13.sp,
-        fontWeight: FontWeight.w600,
+/// Pill-shaped glass-style text field matching reference design
+class _GlassField extends StatelessWidget {
+  final TextEditingController controller;
+  final String hint;
+  final SDGAIconData icon;
+  final bool obscure;
+  final Widget? suffix;
+  final TextInputType? keyboardType;
+  final String? Function(String?)? validator;
+  final TextInputAction? textInputAction;
+
+  const _GlassField({
+    required this.controller,
+    required this.hint,
+    required this.icon,
+    this.obscure = false,
+    this.suffix,
+    this.keyboardType,
+    this.validator,
+    this.textInputAction,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      controller: controller,
+      obscureText: obscure,
+      keyboardType: keyboardType,
+      validator: validator,
+      textInputAction: textInputAction,
+      style: TextStyle(color: AppColors.textPrimary, fontSize: 14.sp),
+      cursorColor: AppColors.primary,
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 13.sp),
+        prefixIcon: Padding(
+          padding: EdgeInsets.only(right: 10.w, left: 16.w),
+          child: SDGAIcon(icon, color: AppColors.textSecondary, size: 20.sp),
+        ),
+        prefixIconConstraints: BoxConstraints(minWidth: 48.w, minHeight: 48.h),
+        suffixIcon: suffix,
+        filled: true,
+        fillColor: AppColors.surface.withOpacity(0.6),
+        contentPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(100.r),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(100.r),
+          borderSide: BorderSide(
+            color: AppColors.border.withOpacity(0.6),
+            width: 1,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(100.r),
+          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(100.r),
+          borderSide: const BorderSide(color: AppColors.error, width: 1),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(100.r),
+          borderSide: const BorderSide(color: AppColors.error, width: 1.5),
+        ),
       ),
-    ),
-  );
+    );
+  }
 }

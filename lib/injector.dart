@@ -4,12 +4,11 @@ import 'core/network/dio_helper.dart';
 import 'data/datasources/favorites_datasource.dart';
 import 'data/datasources/iptv_local_datasource.dart';
 import 'data/datasources/iptv_remote_datasource.dart';
+import 'data/datasources/watch_history_datasource.dart';
 import 'data/repositories/iptv_repository_impl.dart';
 import 'domain/repositories/iptv_repository.dart';
 import 'domain/usecases/usecases.dart';
 
-/// Simple service locator (no external DI lib).
-/// Call [AppInjector.init] once in main() before runApp.
 class AppInjector {
   AppInjector._();
   static late final AppInjector I;
@@ -20,9 +19,9 @@ class AppInjector {
   late final IptvRemoteDataSource remoteDataSource;
   late final IptvLocalDataSource localDataSource;
   late final FavoritesDataSource favoritesDataSource;
+  late final WatchHistoryDataSource watchHistoryDataSource;
   late final IptvRepository repository;
 
-  // Use cases
   late final LoginUseCase loginUseCase;
   late final GetSavedCredentialsUseCase getSavedCredentialsUseCase;
   late final LogoutUseCase logoutUseCase;
@@ -47,6 +46,7 @@ class AppInjector {
     injector.remoteDataSource = IptvRemoteDataSourceImpl(injector.dioHelper);
     injector.localDataSource = IptvLocalDataSourceImpl(injector.secureStorage);
     injector.favoritesDataSource = FavoritesDataSource(injector.sharedPreferences);
+    injector.watchHistoryDataSource = WatchHistoryDataSource(injector.sharedPreferences);
 
     injector.repository = IptvRepositoryImpl(
       remoteDataSource: injector.remoteDataSource,

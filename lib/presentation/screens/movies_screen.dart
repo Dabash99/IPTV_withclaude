@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sdga_icons/sdga_icons.dart';
 import '../../core/constants/app_colors.dart';
 import '../cubits/movies_cubit.dart';
+import '../widgets/app_logo.dart';
 import '../widgets/common_widgets.dart';
 import 'movie_details_screen.dart';
 
@@ -16,6 +17,7 @@ class MoviesScreen extends StatefulWidget {
 
 class _MoviesScreenState extends State<MoviesScreen> {
   final _searchController = TextEditingController();
+  bool _showSearch = false;
 
   @override
   void initState() {
@@ -41,27 +43,58 @@ class _MoviesScreenState extends State<MoviesScreen> {
         child: Column(
           children: [
             Padding(
-              padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 14.h),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 12.h),
+              child: Row(
                 children: [
-                  Text(
-                    'الأفلام',
-                    style: TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 24.sp,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  SizedBox(height: 16.h),
-                  SearchField(
-                    controller: _searchController,
-                    hint: 'ابحث عن فيلم...',
-                    onChanged: (v) => context.read<MoviesCubit>().search(v),
+                  _IconBtn(icon: SDGAIconsStroke.menu02, onTap: () {}),
+                  SizedBox(width: 10.w),
+                  const AppLogoHorizontal(),
+                  const Spacer(),
+                  _IconBtn(
+                    icon: _showSearch ? SDGAIconsStroke.cancel01 : SDGAIconsStroke.search02,
+                    onTap: () => setState(() {
+                      _showSearch = !_showSearch;
+                      if (!_showSearch) {
+                        _searchController.clear();
+                        context.read<MoviesCubit>().search('');
+                      }
+                    }),
                   ),
                 ],
               ),
             ),
+            AnimatedSize(
+              duration: const Duration(milliseconds: 200),
+              child: _showSearch
+                  ? Padding(
+                padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 12.h),
+                child: SearchField(
+                  controller: _searchController,
+                  hint: 'Search movies...',
+                  onChanged: (v) => context.read<MoviesCubit>().search(v),
+                ),
+              )
+                  : const SizedBox.shrink(),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: RichText(
+                text: TextSpan(
+                  style: TextStyle(fontSize: 15.sp, letterSpacing: 1, fontFamily: 'Cairo'),
+                  children: [
+                    TextSpan(
+                      text: 'ALL ',
+                      style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w300),
+                    ),
+                    TextSpan(
+                      text: 'MOVIES',
+                      style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w800),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 14.h),
             Expanded(
               child: BlocBuilder<MoviesCubit, MoviesState>(
                 builder: (context, state) {
@@ -106,7 +139,7 @@ class _MoviesContent extends StatelessWidget {
             itemBuilder: (_, i) {
               if (i == 0) {
                 return CategoryChip(
-                  label: 'الكل',
+                  label: 'All',
                   selected: state.selectedCategoryId == null,
                   onTap: () => context.read<MoviesCubit>().selectCategory(null),
                 );
@@ -125,10 +158,10 @@ class _MoviesContent extends StatelessWidget {
           child: state.filteredMovies.isEmpty
               ? const EmptyStateWidget(
             icon: SDGAIconsBulk.video01,
-            message: 'لا توجد أفلام',
+            message: 'No movies found',
           )
               : GridView.builder(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+            padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 100.h),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
               crossAxisSpacing: 12.w,
@@ -155,6 +188,31 @@ class _MoviesContent extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _IconBtn extends StatelessWidget {
+  final SDGAIconData icon;
+  final VoidCallback onTap;
+  const _IconBtn({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 40.w,
+        height: 40.w,
+        decoration: BoxDecoration(
+          color: AppColors.surface.withOpacity(0.7),
+          shape: BoxShape.circle,
+          border: Border.all(color: AppColors.border.withOpacity(0.5)),
+        ),
+        child: Center(
+          child: SDGAIcon(icon, color: Colors.white, size: 18.sp),
+        ),
+      ),
     );
   }
 }

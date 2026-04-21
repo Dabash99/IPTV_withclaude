@@ -75,7 +75,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             enableQualities: true,
             enablePlaybackSpeed: true,
             progressBarPlayedColor: AppColors.primary,
-            progressBarHandleColor: AppColors.accent,
+            progressBarHandleColor: AppColors.primary,
             progressBarBufferedColor: Color(0x66FFFFFF),
             progressBarBackgroundColor: Color(0x33FFFFFF),
             controlBarColor: Color(0x99000000),

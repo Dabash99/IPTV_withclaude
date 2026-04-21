@@ -7,6 +7,8 @@ import '../cubits/auth_cubit.dart';
 import '../cubits/live_cubit.dart';
 import '../cubits/movies_cubit.dart';
 import '../cubits/series_cubit.dart';
+import '../widgets/app_logo.dart';
+import 'dashboard_screen.dart';
 import 'favorites_screen.dart';
 import 'live_tv_screen.dart';
 import 'login_screen.dart';
@@ -24,6 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
   final _screens = const [
+    DashboardScreen(),
     LiveTvScreen(),
     MoviesScreen(),
     SeriesScreen(),
@@ -31,30 +34,22 @@ class _HomeScreenState extends State<HomeScreen> {
     _SettingsScreen(),
   ];
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<LiveCubit>().loadData();
-    });
-  }
-
   void _onTabTapped(int index) {
     if (_currentIndex == index) return;
     setState(() => _currentIndex = index);
 
     switch (index) {
-      case 0:
+      case 1:
         if (context.read<LiveCubit>().state is LiveInitial) {
           context.read<LiveCubit>().loadData();
         }
         break;
-      case 1:
+      case 2:
         if (context.read<MoviesCubit>().state is MoviesInitial) {
           context.read<MoviesCubit>().loadData();
         }
         break;
-      case 2:
+      case 3:
         if (context.read<SeriesCubit>().state is SeriesInitial) {
           context.read<SeriesCubit>().loadData();
         }
@@ -66,59 +61,61 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
+      extendBody: true,
       body: IndexedStack(
         index: _currentIndex,
         children: _screens,
       ),
       bottomNavigationBar: Container(
+        margin: EdgeInsets.fromLTRB(12.w, 0, 12.w, 12.h),
         decoration: BoxDecoration(
-          color: AppColors.surface,
-          border: Border(
-            top: BorderSide(color: AppColors.border, width: 1),
-          ),
+          color: AppColors.surface.withOpacity(0.95),
+          borderRadius: BorderRadius.circular(100.r),
+          border: Border.all(color: AppColors.border.withOpacity(0.6)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.3),
-              blurRadius: 20,
-              offset: const Offset(0, -4),
+              color: Colors.black.withOpacity(0.4),
+              blurRadius: 24,
+              offset: const Offset(0, 8),
             ),
           ],
         ),
         child: SafeArea(
+          top: false,
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 10.h),
+            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 8.h),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _NavItem(
-                  icon: SDGAIconsBulk.tv01,
-                  label: 'مباشر',
+                  icon: SDGAIconsBulk.home03,
                   active: _currentIndex == 0,
                   onTap: () => _onTabTapped(0),
                 ),
                 _NavItem(
-                  icon: SDGAIconsBulk.video01,
-                  label: 'أفلام',
+                  icon: SDGAIconsBulk.tv01,
                   active: _currentIndex == 1,
                   onTap: () => _onTabTapped(1),
                 ),
                 _NavItem(
-                  icon: SDGAIconsBulk.folderLibrary,
-                  label: 'مسلسلات',
+                  icon: SDGAIconsBulk.video01,
                   active: _currentIndex == 2,
                   onTap: () => _onTabTapped(2),
                 ),
                 _NavItem(
-                  icon: SDGAIconsBulk.favourite,
-                  label: 'المفضلة',
+                  icon: SDGAIconsBulk.folderLibrary,
                   active: _currentIndex == 3,
                   onTap: () => _onTabTapped(3),
                 ),
                 _NavItem(
-                  icon: SDGAIconsBulk.settings02,
-                  label: 'إعدادات',
+                  icon: SDGAIconsBulk.favourite,
                   active: _currentIndex == 4,
                   onTap: () => _onTabTapped(4),
+                ),
+                _NavItem(
+                  icon: SDGAIconsBulk.settings02,
+                  active: _currentIndex == 5,
+                  onTap: () => _onTabTapped(5),
                 ),
               ],
             ),
@@ -131,13 +128,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
 class _NavItem extends StatelessWidget {
   final SDGAIconData icon;
-  final String label;
   final bool active;
   final VoidCallback onTap;
 
   const _NavItem({
     required this.icon,
-    required this.label,
     required this.active,
     required this.onTap,
   });
@@ -148,45 +143,28 @@ class _NavItem extends StatelessWidget {
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-        padding: EdgeInsets.symmetric(
-          horizontal: active ? 14.w : 10.w,
-          vertical: 10.h,
-        ),
+        duration: const Duration(milliseconds: 250),
+        width: 42.w,
+        height: 42.w,
         decoration: BoxDecoration(
-          gradient: active ? AppColors.primaryGradient : null,
-          borderRadius: BorderRadius.circular(14.r),
+          color: active ? AppColors.primary : Colors.transparent,
+          shape: BoxShape.circle,
           boxShadow: active
               ? [
             BoxShadow(
-              color: AppColors.primary.withOpacity(0.45),
+              color: AppColors.primary.withOpacity(0.5),
               blurRadius: 16,
               offset: const Offset(0, 4),
             ),
           ]
               : null,
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SDGAIcon(
-              icon,
-              color: active ? Colors.white : AppColors.textMuted,
-              size: 22.sp,
-            ),
-            if (active) ...[
-              SizedBox(width: 6.w),
-              Text(
-                label,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 11.sp,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
-          ],
+        child: Center(
+          child: SDGAIcon(
+            icon,
+            color: active ? Colors.white : AppColors.textMuted,
+            size: 20.sp,
+          ),
         ),
       ),
     );
@@ -194,8 +172,15 @@ class _NavItem extends StatelessWidget {
 }
 
 // ============ Settings Screen ============
-class _SettingsScreen extends StatelessWidget {
+class _SettingsScreen extends StatefulWidget {
   const _SettingsScreen();
+
+  @override
+  State<_SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<_SettingsScreen> {
+  bool _gridView = false;
 
   @override
   Widget build(BuildContext context) {
@@ -207,153 +192,123 @@ class _SettingsScreen extends StatelessWidget {
           backgroundColor: AppColors.background,
           body: SafeArea(
             child: SingleChildScrollView(
-              padding: EdgeInsets.all(16.w),
+              padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 120.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 8.h),
-                  Text(
-                    'الإعدادات',
-                    style: TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 24.sp,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  SizedBox(height: 24.h),
-
-                  // Profile card with glow
-                  Container(
-                    padding: EdgeInsets.all(20.w),
-                    decoration: BoxDecoration(
-                      gradient: AppColors.primaryGradient,
-                      borderRadius: BorderRadius.circular(18.r),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primary.withOpacity(0.4),
-                          blurRadius: 24,
-                          offset: const Offset(0, 8),
+                  // Top bar: back + title + logout
+                  Row(
+                    children: [
+                      Container(
+                        width: 40.w,
+                        height: 40.w,
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: AppColors.border),
                         ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
+                        child: Center(
+                          child: SDGAIcon(
+                            SDGAIconsStroke.arrowRight02,
+                            color: Colors.white,
+                            size: 18.sp,
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 14.w),
+                      Text(
+                        'Settings',
+                        style: TextStyle(
+                          color: AppColors.textPrimary,
+                          fontSize: 20.sp,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const Spacer(),
+                      GestureDetector(
+                        onTap: () => _confirmLogout(context),
+                        child: Row(
                           children: [
-                            Container(
-                              width: 52.w,
-                              height: 52.w,
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: Colors.white.withOpacity(0.3),
-                                  width: 1.5,
-                                ),
-                              ),
-                              child: Center(
-                                child: SDGAIcon(
-                                  SDGAIconsBulk.user,
-                                  color: Colors.white,
-                                  size: 26.sp,
-                                ),
-                              ),
+                            SDGAIcon(
+                              SDGAIconsStroke.logout03,
+                              color: AppColors.error,
+                              size: 18.sp,
                             ),
-                            SizedBox(width: 14.w),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    creds?.username ?? '-',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 17.sp,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                  SizedBox(height: 4.h),
-                                  Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 8.w,
-                                      vertical: 2.h,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.success.withOpacity(0.25),
-                                      borderRadius: BorderRadius.circular(6.r),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Container(
-                                          width: 6.w,
-                                          height: 6.w,
-                                          decoration: const BoxDecoration(
-                                            color: AppColors.success,
-                                            shape: BoxShape.circle,
-                                          ),
-                                        ),
-                                        SizedBox(width: 4.w),
-                                        Text(
-                                          creds?.status ?? 'Active',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 11.sp,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
+                            SizedBox(width: 6.w),
+                            Text(
+                              'Logout',
+                              style: TextStyle(
+                                color: AppColors.error,
+                                fontSize: 13.sp,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ],
                         ),
-                        if (creds?.expDate != null) ...[
-                          SizedBox(height: 16.h),
-                          Container(height: 1, color: Colors.white.withOpacity(0.2)),
-                          SizedBox(height: 16.h),
-                          _infoRow(
-                            SDGAIconsStroke.calendar03,
-                            'تاريخ الانتهاء',
-                            _formatExp(creds!.expDate!),
-                          ),
-                          SizedBox(height: 10.h),
-                          _infoRow(
-                            SDGAIconsStroke.connect,
-                            'الاتصالات',
-                            '${creds.activeConnections ?? 0} / ${creds.maxConnections ?? 0}',
-                          ),
-                        ],
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
+                  SizedBox(height: 28.h),
 
-                  SizedBox(height: 24.h),
-
-                  // Settings items
-                  _SettingTile(
-                    icon: SDGAIconsBulk.informationCircle,
-                    title: 'عن التطبيق',
-                    subtitle: 'IPTV Player v1.0.0',
-                    onTap: () {},
-                  ),
-                  SizedBox(height: 10.h),
-                  _SettingTile(
-                    icon: SDGAIconsBulk.shieldEnergy,
-                    title: 'سياسة الخصوصية',
-                    onTap: () {},
-                  ),
-                  SizedBox(height: 10.h),
-                  _SettingTile(
-                    icon: SDGAIconsBulk.logout03,
-                    title: 'تسجيل الخروج',
-                    danger: true,
-                    onTap: () => _confirmLogout(context),
+                  // View mode
+                  Row(
+                    children: [
+                      Text(
+                        'View List',
+                        style: TextStyle(
+                          color: AppColors.textPrimary,
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const Spacer(),
+                      _ViewToggle(
+                        grid: _gridView,
+                        onChanged: (v) => setState(() => _gridView = v),
+                      ),
+                    ],
                   ),
                   SizedBox(height: 20.h),
+
+                  // Profile card
+                  _ProfileTile(
+                    icon: SDGAIconsBulk.user,
+                    label: 'Profile',
+                    onTap: () {
+                      if (creds != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => _ProfileScreen(creds: creds),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                  SizedBox(height: 10.h),
+                  _ProfileTile(
+                    icon: SDGAIconsBulk.delete02,
+                    label: 'Delete Recently Watched',
+                    onTap: () {
+                      // TODO: integrate WatchHistoryCubit.clear()
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('Watch history cleared'),
+                          backgroundColor: AppColors.success,
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  SizedBox(height: 10.h),
+                  _ProfileTile(
+                    icon: SDGAIconsBulk.informationCircle,
+                    label: 'About',
+                    onTap: () {},
+                  ),
                 ],
               ),
             ),
@@ -363,48 +318,19 @@ class _SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _infoRow(SDGAIconData icon, String label, String value) => Row(
-    children: [
-      SDGAIcon(icon, color: Colors.white.withOpacity(0.8), size: 16.sp),
-      SizedBox(width: 8.w),
-      Text(label, style: TextStyle(color: Colors.white.withOpacity(0.85), fontSize: 13.sp)),
-      const Spacer(),
-      Text(
-        value,
-        style: TextStyle(color: Colors.white, fontSize: 13.sp, fontWeight: FontWeight.w700),
-      ),
-    ],
-  );
-
-  String _formatExp(String timestamp) {
-    try {
-      final ts = int.parse(timestamp);
-      final date = DateTime.fromMillisecondsSinceEpoch(ts * 1000);
-      return '${date.day}/${date.month}/${date.year}';
-    } catch (_) {
-      return timestamp;
-    }
-  }
-
   void _confirmLogout(BuildContext context) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.r)),
-        title: Row(
-          children: [
-            SDGAIcon(SDGAIconsBulk.alert02, color: AppColors.error, size: 22.sp),
-            SizedBox(width: 10.w),
-            Text(
-              'تسجيل الخروج',
-              style: TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
+        title: Text(
+          'تسجيل الخروج',
+          style: TextStyle(
+            color: AppColors.textPrimary,
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w700,
+          ),
         ),
         content: Text(
           'متأكد إنك عايز تسجل خروج؟',
@@ -450,86 +376,255 @@ class _SettingsScreen extends StatelessWidget {
   }
 }
 
-class _SettingTile extends StatelessWidget {
-  final SDGAIconData icon;
-  final String title;
-  final String? subtitle;
-  final VoidCallback onTap;
-  final bool danger;
+class _ViewToggle extends StatelessWidget {
+  final bool grid;
+  final ValueChanged<bool> onChanged;
+  const _ViewToggle({required this.grid, required this.onChanged});
 
-  const _SettingTile({
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(3.w),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(100.r),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _iconBtn(SDGAIconsStroke.menu08, !grid, () => onChanged(false)),
+          _iconBtn(SDGAIconsStroke.grid, grid, () => onChanged(true)),
+        ],
+      ),
+    );
+  }
+
+  Widget _iconBtn(SDGAIconData icon, bool active, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(8.w),
+        decoration: BoxDecoration(
+          color: active ? AppColors.primary : Colors.transparent,
+          shape: BoxShape.circle,
+        ),
+        child: SDGAIcon(
+          icon,
+          color: active ? Colors.white : AppColors.textMuted,
+          size: 16.sp,
+        ),
+      ),
+    );
+  }
+}
+
+class _ProfileTile extends StatelessWidget {
+  final SDGAIconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _ProfileTile({
     required this.icon,
-    required this.title,
+    required this.label,
     required this.onTap,
-    this.subtitle,
-    this.danger = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final color = danger ? AppColors.error : AppColors.textPrimary;
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(14.r),
+        borderRadius: BorderRadius.circular(100.r),
         onTap: onTap,
         child: Container(
-          padding: EdgeInsets.all(14.w),
+          padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 14.h),
           decoration: BoxDecoration(
             color: AppColors.surface,
-            borderRadius: BorderRadius.circular(14.r),
+            borderRadius: BorderRadius.circular(100.r),
             border: Border.all(color: AppColors.border),
           ),
           child: Row(
             children: [
-              Container(
-                width: 40.w,
-                height: 40.w,
-                decoration: BoxDecoration(
-                  color: danger
-                      ? AppColors.error.withOpacity(0.15)
-                      : AppColors.primary.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(10.r),
-                ),
-                child: Center(
-                  child: SDGAIcon(
-                    icon,
-                    color: danger ? AppColors.error : AppColors.primary,
-                    size: 20.sp,
-                  ),
-                ),
-              ),
+              SDGAIcon(icon, color: AppColors.textPrimary, size: 18.sp),
               SizedBox(width: 12.w),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        color: color,
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    if (subtitle != null) ...[
-                      SizedBox(height: 2.h),
-                      Text(
-                        subtitle!,
-                        style: TextStyle(
-                          color: AppColors.textMuted,
-                          fontSize: 12.sp,
-                        ),
-                      ),
-                    ],
-                  ],
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
               SDGAIcon(
                 SDGAIconsStroke.arrowLeft02,
                 color: AppColors.textMuted,
-                size: 18.sp,
+                size: 16.sp,
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ============ Profile Detail Screen (M3U style from reference) ============
+class _ProfileScreen extends StatelessWidget {
+  final dynamic creds;
+  const _ProfileScreen({required this.creds});
+
+  int _daysRemaining() {
+    try {
+      final ts = int.parse(creds.expDate ?? '0');
+      final date = DateTime.fromMillisecondsSinceEpoch(ts * 1000);
+      return date.difference(DateTime.now()).inDays;
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final days = _daysRemaining();
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.all(16.w),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      width: 40.w,
+                      height: 40.w,
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: Center(
+                        child: SDGAIcon(
+                          SDGAIconsStroke.arrowRight02,
+                          color: Colors.white,
+                          size: 18.sp,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    'Profile',
+                    style: TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 17.sp,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const Spacer(flex: 2),
+                ],
+              ),
+              const Spacer(),
+              Center(
+                child: Column(
+                  children: [
+                    const AppLogo(size: 48),
+                    SizedBox(height: 40.h),
+
+                    // Link icon badge
+                    Container(
+                      width: 72.w,
+                      height: 72.w,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primary.withOpacity(0.5),
+                            blurRadius: 24,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: SDGAIcon(
+                          SDGAIconsBulk.link02,
+                          color: Colors.white,
+                          size: 32.sp,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 32.h),
+
+                    // User info with days remaining
+                    Container(
+                      padding: EdgeInsets.all(18.w),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(18.r),
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  creds.username ?? '-',
+                                  style: TextStyle(
+                                    color: AppColors.textPrimary,
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                SizedBox(height: 4.h),
+                                Text(
+                                  creds.serverUrl ?? '',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: AppColors.textMuted,
+                                    fontSize: 11.sp,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                '$days',
+                                style: TextStyle(
+                                  color: AppColors.primary,
+                                  fontSize: 32.sp,
+                                  fontWeight: FontWeight.w800,
+                                  height: 1,
+                                ),
+                              ),
+                              Text(
+                                'Days Remaining',
+                                style: TextStyle(
+                                  color: AppColors.textMuted,
+                                  fontSize: 10.sp,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Spacer(flex: 2),
             ],
           ),
         ),

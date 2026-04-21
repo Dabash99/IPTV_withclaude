@@ -10,6 +10,7 @@ import 'presentation/cubits/favorites_cubit.dart';
 import 'presentation/cubits/live_cubit.dart';
 import 'presentation/cubits/movies_cubit.dart';
 import 'presentation/cubits/series_cubit.dart';
+import 'presentation/cubits/watch_history_cubit.dart';
 import 'presentation/screens/splash_screen.dart';
 
 Future<void> main() async {
@@ -65,9 +66,12 @@ class MyApp extends StatelessWidget {
             BlocProvider(
               create: (_) => FavoritesCubit(inj.favoritesDataSource),
             ),
+            BlocProvider(
+              create: (_) => WatchHistoryCubit(inj.watchHistoryDataSource),
+            ),
           ],
           child: MaterialApp(
-            title: 'IPTV Player',
+            title: 'ABC IPTV Player',
             debugShowCheckedModeBanner: false,
             locale: const Locale('ar'),
             supportedLocales: const [
