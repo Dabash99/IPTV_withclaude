@@ -7,9 +7,11 @@ import '../../data/datasources/favorites_datasource.dart';
 import '../../domain/repositories/iptv_repository.dart';
 import '../cubits/favorites_cubit.dart';
 import '../cubits/live_cubit.dart';
+import '../widgets/app_drawer.dart';
 import '../widgets/app_logo.dart';
 import '../widgets/common_widgets.dart';
 import '../widgets/epg_widget.dart';
+import 'home_screen.dart';
 import 'video_player_screen.dart';
 
 class LiveTvScreen extends StatefulWidget {
@@ -21,6 +23,7 @@ class LiveTvScreen extends StatefulWidget {
 
 class _LiveTvScreenState extends State<LiveTvScreen> {
   final _searchController = TextEditingController();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _showSearch = false;
 
   @override
@@ -42,7 +45,12 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: AppColors.background,
+      drawer: AppDrawer(
+        onNavigate: (index) =>
+            HomeTabController.of(context)?.switchTab(index),
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -51,7 +59,10 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
               padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 12.h),
               child: Row(
                 children: [
-                  _IconBtn(icon: SDGAIconsStroke.menu02, onTap: () {}),
+                  _IconBtn(
+                    icon: SDGAIconsStroke.menu02,
+                    onTap: () => _scaffoldKey.currentState?.openDrawer(),
+                  ),
                   SizedBox(width: 10.w),
                   const AppLogoHorizontal(),
                   const Spacer(),

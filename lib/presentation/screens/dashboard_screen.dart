@@ -11,8 +11,10 @@ import '../../domain/repositories/iptv_repository.dart';
 import '../cubits/movies_cubit.dart';
 import '../cubits/series_cubit.dart';
 import '../cubits/watch_history_cubit.dart';
+import '../widgets/app_drawer.dart';
 import '../widgets/app_logo.dart';
 import '../widgets/poster_backdrop.dart';
+import 'home_screen.dart';
 import 'movie_details_screen.dart';
 import 'series_screen.dart';
 import 'video_player_screen.dart';
@@ -26,6 +28,7 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   String _filter = 'new'; // 'new' | 'recently'
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -43,7 +46,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: AppColors.background,
+      drawer: AppDrawer(
+        onNavigate: (index) =>
+            HomeTabController.of(context)?.switchTab(index),
+      ),
       body: Stack(
         children: [
           // Subtle poster backdrop in top area
@@ -80,19 +88,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       children: [
                         _RoundIconButton(
                           icon: SDGAIconsStroke.menu02,
-                          onTap: () {},
+                          onTap: () => _scaffoldKey.currentState?.openDrawer(),
                         ),
                         SizedBox(width: 12.w),
                         const AppLogoHorizontal(),
                         const Spacer(),
                         _RoundIconButton(
                           icon: SDGAIconsStroke.settings02,
-                          onTap: () {},
+                          onTap: () =>
+                              HomeTabController.of(context)?.switchTab(5),
                         ),
                         SizedBox(width: 8.w),
                         _RoundIconButton(
                           icon: SDGAIconsStroke.search02,
-                          onTap: () {},
+                          onTap: () {
+                            // Jump to movies tab (which has search)
+                            HomeTabController.of(context)?.switchTab(2);
+                          },
                         ),
                       ],
                     ),

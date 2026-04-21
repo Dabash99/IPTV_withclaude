@@ -10,8 +10,10 @@ import '../../domain/repositories/iptv_repository.dart';
 import '../../domain/usecases/usecases.dart';
 import '../cubits/favorites_cubit.dart';
 import '../cubits/series_cubit.dart';
+import '../widgets/app_drawer.dart';
 import '../widgets/app_logo.dart';
 import '../widgets/common_widgets.dart';
+import 'home_screen.dart';
 import 'video_player_screen.dart';
 
 class SeriesScreen extends StatefulWidget {
@@ -23,6 +25,7 @@ class SeriesScreen extends StatefulWidget {
 
 class _SeriesScreenState extends State<SeriesScreen> {
   final _searchController = TextEditingController();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _showSearch = false;
 
   @override
@@ -44,7 +47,12 @@ class _SeriesScreenState extends State<SeriesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: AppColors.background,
+      drawer: AppDrawer(
+        onNavigate: (index) =>
+            HomeTabController.of(context)?.switchTab(index),
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -52,7 +60,10 @@ class _SeriesScreenState extends State<SeriesScreen> {
               padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 12.h),
               child: Row(
                 children: [
-                  _IconBtn(icon: SDGAIconsStroke.menu02, onTap: () {}),
+                  _IconBtn(
+                    icon: SDGAIconsStroke.menu02,
+                    onTap: () => _scaffoldKey.currentState?.openDrawer(),
+                  ),
                   SizedBox(width: 10.w),
                   const AppLogoHorizontal(),
                   const Spacer(),
@@ -391,41 +402,32 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                                         if (eps.isNotEmpty) firstEp = eps.first;
                                       }
                                     }
-                                    return Row(
-                                      children: [
-                                        Expanded(
-                                          child: _PillBtn(
-                                            label: 'Play',
-                                            icon: SDGAIconsBulk.play,
-                                            primary: true,
-                                            onTap: firstEp == null
-                                                ? null
-                                                : () {
-                                              final repo = ctx.read<IptvRepository>();
-                                              final url = repo.buildSeriesStreamUrl(
-                                                int.tryParse(firstEp!.id) ?? 0,
-                                                firstEp.containerExtension,
-                                              );
-                                              Navigator.push(
-                                                ctx,
-                                                MaterialPageRoute(
-                                                  builder: (_) => VideoPlayerScreen(
-                                                    url: url,
-                                                    title: '${s.name} - ${firstEp?.title}',
-                                                    isLive: false,
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                        SizedBox(width: 8.w),
-                                        _PillBtn(
-                                          label: 'Trailer',
-                                          primary: false,
-                                          onTap: () {},
-                                        ),
-                                      ],
+                                    return SizedBox(
+                                      width: double.infinity,
+                                      child: _PillBtn(
+                                        label: 'Play',
+                                        icon: SDGAIconsBulk.play,
+                                        primary: true,
+                                        onTap: firstEp == null
+                                            ? null
+                                            : () {
+                                          final repo = ctx.read<IptvRepository>();
+                                          final url = repo.buildSeriesStreamUrl(
+                                            int.tryParse(firstEp!.id) ?? 0,
+                                            firstEp.containerExtension,
+                                          );
+                                          Navigator.push(
+                                            ctx,
+                                            MaterialPageRoute(
+                                              builder: (_) => VideoPlayerScreen(
+                                                url: url,
+                                                title: '${s.name} - ${firstEp?.title}',
+                                                isLive: false,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
                                     );
                                   },
                                 ),

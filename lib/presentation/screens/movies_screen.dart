@@ -4,8 +4,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sdga_icons/sdga_icons.dart';
 import '../../core/constants/app_colors.dart';
 import '../cubits/movies_cubit.dart';
+import '../widgets/app_drawer.dart';
 import '../widgets/app_logo.dart';
 import '../widgets/common_widgets.dart';
+import 'home_screen.dart';
 import 'movie_details_screen.dart';
 
 class MoviesScreen extends StatefulWidget {
@@ -17,6 +19,7 @@ class MoviesScreen extends StatefulWidget {
 
 class _MoviesScreenState extends State<MoviesScreen> {
   final _searchController = TextEditingController();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _showSearch = false;
 
   @override
@@ -38,7 +41,12 @@ class _MoviesScreenState extends State<MoviesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: AppColors.background,
+      drawer: AppDrawer(
+        onNavigate: (index) =>
+            HomeTabController.of(context)?.switchTab(index),
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -46,7 +54,10 @@ class _MoviesScreenState extends State<MoviesScreen> {
               padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 12.h),
               child: Row(
                 children: [
-                  _IconBtn(icon: SDGAIconsStroke.menu02, onTap: () {}),
+                  _IconBtn(
+                    icon: SDGAIconsStroke.menu02,
+                    onTap: () => _scaffoldKey.currentState?.openDrawer(),
+                  ),
                   SizedBox(width: 10.w),
                   const AppLogoHorizontal(),
                   const Spacer(),

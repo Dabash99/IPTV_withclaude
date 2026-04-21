@@ -186,33 +186,28 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                                 ),
                               SizedBox(height: 14.h),
 
-                              // Play + Trailer buttons
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: _PlayButton(
-                                      onTap: () {
-                                        final repo = context.read<IptvRepository>();
-                                        final url = repo.buildMovieStreamUrl(
-                                          m.streamId,
-                                          m.containerExtension,
-                                        );
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) => VideoPlayerScreen(
-                                              url: url,
-                                              title: m.name,
-                                              isLive: false,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                  SizedBox(width: 8.w),
-                                  _TrailerButton(onTap: () {}),
-                                ],
+                              // Play button (full width)
+                              SizedBox(
+                                width: double.infinity,
+                                child: _PlayButton(
+                                  onTap: () {
+                                    final repo = context.read<IptvRepository>();
+                                    final url = repo.buildMovieStreamUrl(
+                                      m.streamId,
+                                      m.containerExtension,
+                                    );
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => VideoPlayerScreen(
+                                          url: url,
+                                          title: m.name,
+                                          isLive: false,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
                               ),
                             ],
                           ),
@@ -410,36 +405,6 @@ class _PlayButton extends StatelessWidget {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _TrailerButton extends StatelessWidget {
-  final VoidCallback onTap;
-  const _TrailerButton({required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 44.h,
-      child: OutlinedButton(
-        onPressed: onTap,
-        style: OutlinedButton.styleFrom(
-          side: BorderSide(color: AppColors.border),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(100.r),
-          ),
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
-        ),
-        child: Text(
-          'Trailer',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 13.sp,
-            fontWeight: FontWeight.w600,
-          ),
         ),
       ),
     );

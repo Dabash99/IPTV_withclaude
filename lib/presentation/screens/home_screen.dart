@@ -7,6 +7,8 @@ import '../cubits/auth_cubit.dart';
 import '../cubits/live_cubit.dart';
 import '../cubits/movies_cubit.dart';
 import '../cubits/series_cubit.dart';
+import '../cubits/watch_history_cubit.dart';
+import '../widgets/about_sheet.dart';
 import '../widgets/app_logo.dart';
 import 'dashboard_screen.dart';
 import 'favorites_screen.dart';
@@ -14,6 +16,23 @@ import 'live_tv_screen.dart';
 import 'login_screen.dart';
 import 'movies_screen.dart';
 import 'series_screen.dart';
+
+/// Controller exposed so any descendant screen can switch the bottom nav tab.
+class HomeTabController extends InheritedWidget {
+  final void Function(int index) switchTab;
+
+  const HomeTabController({
+    super.key,
+    required this.switchTab,
+    required super.child,
+  });
+
+  static HomeTabController? of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<HomeTabController>();
+
+  @override
+  bool updateShouldNotify(HomeTabController oldWidget) => false;
+}
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -25,19 +44,22 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  final _screens = const [
+  List<Widget> get _screens => const [
     DashboardScreen(),
     LiveTvScreen(),
     MoviesScreen(),
     SeriesScreen(),
     FavoritesScreen(),
-    _SettingsScreen(),
+    SettingsScreen(),
   ];
 
-  void _onTabTapped(int index) {
+  void switchTab(int index) {
     if (_currentIndex == index) return;
     setState(() => _currentIndex = index);
+    _lazyLoadTab(index);
+  }
 
+  void _lazyLoadTab(int index) {
     switch (index) {
       case 1:
         if (context.read<LiveCubit>().state is LiveInitial) {
@@ -59,65 +81,68 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      extendBody: true,
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
-      ),
-      bottomNavigationBar: Container(
-        margin: EdgeInsets.fromLTRB(12.w, 0, 12.w, 12.h),
-        decoration: BoxDecoration(
-          color: AppColors.surface.withOpacity(0.95),
-          borderRadius: BorderRadius.circular(100.r),
-          border: Border.all(color: AppColors.border.withOpacity(0.6)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.4),
-              blurRadius: 24,
-              offset: const Offset(0, 8),
-            ),
-          ],
+    return HomeTabController(
+      switchTab: switchTab,
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        extendBody: true,
+        body: IndexedStack(
+          index: _currentIndex,
+          children: _screens,
         ),
-        child: SafeArea(
-          top: false,
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 8.h),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _NavItem(
-                  icon: SDGAIconsBulk.home03,
-                  active: _currentIndex == 0,
-                  onTap: () => _onTabTapped(0),
-                ),
-                _NavItem(
-                  icon: SDGAIconsBulk.tv01,
-                  active: _currentIndex == 1,
-                  onTap: () => _onTabTapped(1),
-                ),
-                _NavItem(
-                  icon: SDGAIconsBulk.video01,
-                  active: _currentIndex == 2,
-                  onTap: () => _onTabTapped(2),
-                ),
-                _NavItem(
-                  icon: SDGAIconsBulk.folderLibrary,
-                  active: _currentIndex == 3,
-                  onTap: () => _onTabTapped(3),
-                ),
-                _NavItem(
-                  icon: SDGAIconsBulk.favourite,
-                  active: _currentIndex == 4,
-                  onTap: () => _onTabTapped(4),
-                ),
-                _NavItem(
-                  icon: SDGAIconsBulk.settings02,
-                  active: _currentIndex == 5,
-                  onTap: () => _onTabTapped(5),
-                ),
-              ],
+        bottomNavigationBar: Container(
+          margin: EdgeInsets.fromLTRB(12.w, 0, 12.w, 12.h),
+          decoration: BoxDecoration(
+            color: AppColors.surface.withOpacity(0.95),
+            borderRadius: BorderRadius.circular(100.r),
+            border: Border.all(color: AppColors.border.withOpacity(0.6)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.4),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: SafeArea(
+            top: false,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 8.h),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _NavItem(
+                    icon: SDGAIconsBulk.home03,
+                    active: _currentIndex == 0,
+                    onTap: () => switchTab(0),
+                  ),
+                  _NavItem(
+                    icon: SDGAIconsBulk.tv01,
+                    active: _currentIndex == 1,
+                    onTap: () => switchTab(1),
+                  ),
+                  _NavItem(
+                    icon: SDGAIconsBulk.video01,
+                    active: _currentIndex == 2,
+                    onTap: () => switchTab(2),
+                  ),
+                  _NavItem(
+                    icon: SDGAIconsBulk.folderLibrary,
+                    active: _currentIndex == 3,
+                    onTap: () => switchTab(3),
+                  ),
+                  _NavItem(
+                    icon: SDGAIconsBulk.favourite,
+                    active: _currentIndex == 4,
+                    onTap: () => switchTab(4),
+                  ),
+                  _NavItem(
+                    icon: SDGAIconsBulk.settings02,
+                    active: _currentIndex == 5,
+                    onTap: () => switchTab(5),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -171,15 +196,15 @@ class _NavItem extends StatelessWidget {
   }
 }
 
-// ============ Settings Screen ============
-class _SettingsScreen extends StatefulWidget {
-  const _SettingsScreen();
+// ============ Settings Screen (public so AppDrawer can use) ============
+class SettingsScreen extends StatefulWidget {
+  const SettingsScreen({super.key});
 
   @override
-  State<_SettingsScreen> createState() => _SettingsScreenState();
+  State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<_SettingsScreen> {
+class _SettingsScreenState extends State<SettingsScreen> {
   bool _gridView = false;
 
   @override
@@ -199,19 +224,28 @@ class _SettingsScreenState extends State<_SettingsScreen> {
                   // Top bar: back + title + logout
                   Row(
                     children: [
-                      Container(
-                        width: 40.w,
-                        height: 40.w,
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: AppColors.border),
-                        ),
-                        child: Center(
-                          child: SDGAIcon(
-                            SDGAIconsStroke.arrowRight02,
-                            color: Colors.white,
-                            size: 18.sp,
+                      GestureDetector(
+                        onTap: () {
+                          // Switch back to Dashboard instead of popping
+                          final controller = HomeTabController.of(context);
+                          if (controller != null) {
+                            controller.switchTab(0);
+                          }
+                        },
+                        child: Container(
+                          width: 40.w,
+                          height: 40.w,
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: AppColors.border),
+                          ),
+                          child: Center(
+                            child: SDGAIcon(
+                              SDGAIconsStroke.arrowRight02,
+                              color: Colors.white,
+                              size: 18.sp,
+                            ),
                           ),
                         ),
                       ),
@@ -270,7 +304,7 @@ class _SettingsScreenState extends State<_SettingsScreen> {
                   ),
                   SizedBox(height: 20.h),
 
-                  // Profile card
+                  // Profile
                   _ProfileTile(
                     icon: SDGAIconsBulk.user,
                     label: 'Profile',
@@ -286,28 +320,20 @@ class _SettingsScreenState extends State<_SettingsScreen> {
                     },
                   ),
                   SizedBox(height: 10.h),
+
+                  // Delete recently watched — NOW WORKING
                   _ProfileTile(
                     icon: SDGAIconsBulk.delete02,
                     label: 'Delete Recently Watched',
-                    onTap: () {
-                      // TODO: integrate WatchHistoryCubit.clear()
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: const Text('Watch history cleared'),
-                          backgroundColor: AppColors.success,
-                          behavior: SnackBarBehavior.floating,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.r),
-                          ),
-                        ),
-                      );
-                    },
+                    onTap: () => _confirmClearHistory(context),
                   ),
                   SizedBox(height: 10.h),
+
+                  // About — NOW WORKING
                   _ProfileTile(
                     icon: SDGAIconsBulk.informationCircle,
                     label: 'About',
-                    onTap: () {},
+                    onTap: () => AboutSheet.show(context),
                   ),
                 ],
               ),
@@ -318,14 +344,14 @@ class _SettingsScreenState extends State<_SettingsScreen> {
     );
   }
 
-  void _confirmLogout(BuildContext context) {
+  void _confirmClearHistory(BuildContext context) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.r)),
         title: Text(
-          'تسجيل الخروج',
+          'Delete Recently Watched',
           style: TextStyle(
             color: AppColors.textPrimary,
             fontSize: 16.sp,
@@ -333,14 +359,76 @@ class _SettingsScreenState extends State<_SettingsScreen> {
           ),
         ),
         content: Text(
-          'متأكد إنك عايز تسجل خروج؟',
+          'This will clear all your watch history. Continue?',
           style: TextStyle(color: AppColors.textSecondary, fontSize: 14.sp),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
-              'إلغاء',
+              'Cancel',
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 14.sp),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+            ),
+            onPressed: () async {
+              await context.read<WatchHistoryCubit>().clear();
+              if (context.mounted) Navigator.pop(context);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text('Watch history cleared'),
+                    backgroundColor: AppColors.success,
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                  ),
+                );
+              }
+            },
+            child: Text(
+              'Delete',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmLogout(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.r)),
+        title: Text(
+          'Logout',
+          style: TextStyle(
+            color: AppColors.textPrimary,
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to logout?',
+          style: TextStyle(color: AppColors.textSecondary, fontSize: 14.sp),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cancel',
               style: TextStyle(color: AppColors.textSecondary, fontSize: 14.sp),
             ),
           ),
@@ -362,7 +450,7 @@ class _SettingsScreenState extends State<_SettingsScreen> {
               }
             },
             child: Text(
-              'خروج',
+              'Logout',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 13.sp,
@@ -471,7 +559,7 @@ class _ProfileTile extends StatelessWidget {
   }
 }
 
-// ============ Profile Detail Screen (M3U style from reference) ============
+// ============ Profile Detail ============
 class _ProfileScreen extends StatelessWidget {
   final dynamic creds;
   const _ProfileScreen({required this.creds});
@@ -536,8 +624,6 @@ class _ProfileScreen extends StatelessWidget {
                   children: [
                     const AppLogo(size: 48),
                     SizedBox(height: 40.h),
-
-                    // Link icon badge
                     Container(
                       width: 72.w,
                       height: 72.w,
@@ -561,8 +647,6 @@ class _ProfileScreen extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 32.h),
-
-                    // User info with days remaining
                     Container(
                       padding: EdgeInsets.all(18.w),
                       decoration: BoxDecoration(
