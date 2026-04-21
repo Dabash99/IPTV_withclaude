@@ -215,7 +215,7 @@ packages:
     source: hosted
     version: "6.0.0"
   flutter_localizations:
-    dependency: transitive
+    dependency: "direct main"
     description: flutter
     source: sdk
     version: "0.0.0"
@@ -549,6 +549,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.28.0"
+  sdga_icons:
+    dependency: "direct main"
+    description:
+      name: sdga_icons
+      sha256: "2bbd7468749d10c9d3f0304fd9465a0e7c8a92d0b27dc4c8466b6c928c35bf59"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.2"
   shared_preferences:
     dependency: "direct main"
     description:

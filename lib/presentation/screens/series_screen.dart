@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:sdga_icons/sdga_icons.dart';
 import '../../core/constants/app_colors.dart';
 import '../../data/datasources/favorites_datasource.dart';
 import '../../domain/entities/stream_entities.dart';
@@ -46,7 +47,7 @@ class _SeriesScreenState extends State<SeriesScreen> {
         child: Column(
           children: [
             Padding(
-              padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 12.h),
+              padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 14.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -54,11 +55,11 @@ class _SeriesScreenState extends State<SeriesScreen> {
                     'المسلسلات',
                     style: TextStyle(
                       color: AppColors.textPrimary,
-                      fontSize: 22.sp,
+                      fontSize: 24.sp,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  SizedBox(height: 14.h),
+                  SizedBox(height: 16.h),
                   SearchField(
                     controller: _searchController,
                     hint: 'ابحث عن مسلسل...',
@@ -71,15 +72,12 @@ class _SeriesScreenState extends State<SeriesScreen> {
               child: BlocBuilder<SeriesCubit, SeriesState>(
                 builder: (context, state) {
                   if (state is SeriesLoading || state is SeriesInitial) {
-                    return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+                    return const AppLoadingIndicator();
                   }
                   if (state is SeriesError) {
-                    return Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(24.w),
-                        child: Text(state.message,
-                            style: TextStyle(color: AppColors.textSecondary, fontSize: 14.sp)),
-                      ),
+                    return ErrorStateWidget(
+                      message: state.message,
+                      onRetry: () => context.read<SeriesCubit>().loadData(),
                     );
                   }
                   if (state is SeriesLoaded) {
@@ -128,20 +126,20 @@ class _SeriesContent extends StatelessWidget {
             },
           ),
         ),
-        SizedBox(height: 12.h),
+        SizedBox(height: 14.h),
         Expanded(
           child: state.filteredSeries.isEmpty
-              ? Center(
-            child: Text('لا توجد مسلسلات',
-                style: TextStyle(color: AppColors.textMuted, fontSize: 14.sp)),
+              ? const EmptyStateWidget(
+            icon: SDGAIconsBulk.folderLibrary,
+            message: 'لا توجد مسلسلات',
           )
               : GridView.builder(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
               crossAxisSpacing: 12.w,
-              mainAxisSpacing: 14.h,
-              childAspectRatio: 0.62,
+              mainAxisSpacing: 16.h,
+              childAspectRatio: 0.6,
             ),
             itemCount: state.filteredSeries.length,
             itemBuilder: (_, i) {
@@ -183,30 +181,56 @@ class SeriesDetailsScreen extends StatelessWidget {
           slivers: [
             SliverAppBar(
               backgroundColor: AppColors.background,
-              expandedHeight: 280.h,
+              expandedHeight: 300.h,
               pinned: true,
-              iconTheme: const IconThemeData(color: Colors.white),
+              leading: Padding(
+                padding: EdgeInsets.all(8.w),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.4),
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                    icon: SDGAIcon(
+                      SDGAIconsStroke.arrowRight02,
+                      color: Colors.white,
+                      size: 20.sp,
+                    ),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ),
+              ),
               actions: [
                 BlocBuilder<FavoritesCubit, FavoritesState>(
                   builder: (ctx, _) {
                     final cubit = ctx.read<FavoritesCubit>();
                     final isFav = cubit.isFavorite(series.seriesId, FavoriteType.series);
-                    return IconButton(
-                      icon: Icon(
-                        isFav ? Icons.favorite : Icons.favorite_border,
-                        color: isFav ? AppColors.error : Colors.white,
-                        size: 24.sp,
+                    return Padding(
+                      padding: EdgeInsets.all(8.w),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.4),
+                          shape: BoxShape.circle,
+                        ),
+                        child: IconButton(
+                          icon: SDGAIcon(
+                            isFav
+                                ? SDGAIconsBulk.favourite
+                                : SDGAIconsStroke.favourite,
+                            color: isFav ? AppColors.error : Colors.white,
+                            size: 22.sp,
+                          ),
+                          onPressed: () => cubit.toggle(FavoriteItem(
+                            id: series.seriesId,
+                            name: series.name,
+                            image: series.cover,
+                            type: FavoriteType.series,
+                          )),
+                        ),
                       ),
-                      onPressed: () => cubit.toggle(FavoriteItem(
-                        id: series.seriesId,
-                        name: series.name,
-                        image: series.cover,
-                        type: FavoriteType.series,
-                      )),
                     );
                   },
                 ),
-                SizedBox(width: 8.w),
               ],
               flexibleSpace: FlexibleSpaceBar(
                 background: Stack(
@@ -225,10 +249,12 @@ class SeriesDetailsScreen extends StatelessWidget {
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
+                            Colors.black.withOpacity(0.3),
                             Colors.transparent,
-                            AppColors.background.withOpacity(0.6),
+                            AppColors.background.withOpacity(0.8),
                             AppColors.background,
                           ],
+                          stops: const [0.0, 0.3, 0.8, 1.0],
                         ),
                       ),
                     ),
@@ -246,53 +272,70 @@ class SeriesDetailsScreen extends StatelessWidget {
                       series.name,
                       style: TextStyle(
                         color: AppColors.textPrimary,
-                        fontSize: 22.sp,
+                        fontSize: 24.sp,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                    SizedBox(height: 8.h),
-                    Row(
+                    SizedBox(height: 10.h),
+                    Wrap(
+                      spacing: 10.w,
+                      runSpacing: 6.h,
                       children: [
-                        if (series.rating > 0) ...[
-                          Icon(Icons.star, color: AppColors.warning, size: 16.sp),
-                          SizedBox(width: 4.w),
-                          Text(
-                            series.rating.toStringAsFixed(1),
-                            style: TextStyle(color: AppColors.textSecondary, fontSize: 13.sp),
+                        if (series.rating > 0)
+                          _MetaChip(
+                            icon: SDGAIconsBulk.starCircle,
+                            iconColor: AppColors.warning,
+                            label: series.rating.toStringAsFixed(1),
                           ),
-                          SizedBox(width: 12.w),
-                        ],
+                        if (series.releaseDate.isNotEmpty)
+                          _MetaChip(
+                            icon: SDGAIconsStroke.calendar03,
+                            label: series.releaseDate,
+                          ),
                         if (series.genre.isNotEmpty)
-                          Expanded(
-                            child: Text(
-                              series.genre,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(color: AppColors.textMuted, fontSize: 12.sp),
-                            ),
+                          _MetaChip(
+                            icon: SDGAIconsStroke.tag01,
+                            label: series.genre,
                           ),
                       ],
                     ),
                     if (series.plot.isNotEmpty) ...[
-                      SizedBox(height: 14.h),
+                      SizedBox(height: 18.h),
                       Text(
                         series.plot,
                         style: TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 13.sp,
-                          height: 1.6,
+                          height: 1.7,
                         ),
                       ),
                     ],
-                    SizedBox(height: 20.h),
-                    Text(
-                      'الحلقات',
-                      style: TextStyle(
-                        color: AppColors.textPrimary,
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w700,
+                    if (series.cast.isNotEmpty) ...[
+                      SizedBox(height: 14.h),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SDGAIcon(
+                            SDGAIconsStroke.userGroup,
+                            color: AppColors.textMuted,
+                            size: 16.sp,
+                          ),
+                          SizedBox(width: 8.w),
+                          Expanded(
+                            child: Text(
+                              series.cast,
+                              style: TextStyle(
+                                color: AppColors.textSecondary,
+                                fontSize: 12.sp,
+                                height: 1.5,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
+                    ],
+                    SizedBox(height: 24.h),
+                    const SectionHeader(title: 'الحلقات'),
                     SizedBox(height: 12.h),
                   ],
                 ),
@@ -303,8 +346,8 @@ class SeriesDetailsScreen extends StatelessWidget {
                 builder: (context, state) {
                   if (state is SeriesDetailsLoading) {
                     return Padding(
-                      padding: EdgeInsets.all(24.w),
-                      child: const Center(child: CircularProgressIndicator(color: AppColors.primary)),
+                      padding: EdgeInsets.all(32.h),
+                      child: const AppLoadingIndicator(),
                     );
                   }
                   if (state is SeriesDetailsLoaded) {
@@ -313,8 +356,10 @@ class SeriesDetailsScreen extends StatelessWidget {
                   if (state is SeriesError) {
                     return Padding(
                       padding: EdgeInsets.all(16.w),
-                      child: Text(state.message,
-                          style: TextStyle(color: AppColors.error, fontSize: 13.sp)),
+                      child: Text(
+                        state.message,
+                        style: TextStyle(color: AppColors.error, fontSize: 13.sp),
+                      ),
                     );
                   }
                   return SizedBox(height: 100.h);
@@ -323,6 +368,40 @@ class SeriesDetailsScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _MetaChip extends StatelessWidget {
+  final SDGAIconData icon;
+  final Color? iconColor;
+  final String label;
+  const _MetaChip({required this.icon, required this.label, this.iconColor});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(8.r),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SDGAIcon(icon, size: 14.sp, color: iconColor ?? AppColors.textSecondary),
+          SizedBox(width: 5.w),
+          Text(
+            label,
+            style: TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -359,29 +438,29 @@ class _SeasonsListState extends State<_SeasonsList> {
           return Container(
             margin: EdgeInsets.only(bottom: 10.h),
             decoration: BoxDecoration(
-              color: AppColors.card,
-              borderRadius: BorderRadius.circular(12.r),
-              border: Border.all(color: AppColors.divider),
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(14.r),
+              border: Border.all(color: AppColors.border),
             ),
             child: Column(
               children: [
                 InkWell(
-                  borderRadius: BorderRadius.circular(12.r),
+                  borderRadius: BorderRadius.circular(14.r),
                   onTap: () => setState(() => _expandedSeason = expanded ? null : season),
                   child: Padding(
                     padding: EdgeInsets.all(14.w),
                     child: Row(
                       children: [
                         Container(
-                          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withOpacity(0.15),
-                            borderRadius: BorderRadius.circular(6.r),
+                            gradient: AppColors.primaryGradient,
+                            borderRadius: BorderRadius.circular(8.r),
                           ),
                           child: Text(
                             'الموسم $season',
                             style: TextStyle(
-                              color: AppColors.primary,
+                              color: Colors.white,
                               fontSize: 12.sp,
                               fontWeight: FontWeight.w700,
                             ),
@@ -390,13 +469,20 @@ class _SeasonsListState extends State<_SeasonsList> {
                         SizedBox(width: 10.w),
                         Text(
                           '${episodes.length} حلقة',
-                          style: TextStyle(color: AppColors.textMuted, fontSize: 12.sp),
+                          style: TextStyle(
+                            color: AppColors.textMuted,
+                            fontSize: 12.sp,
+                          ),
                         ),
                         const Spacer(),
-                        Icon(
-                          expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                          color: AppColors.textSecondary,
-                          size: 22.sp,
+                        AnimatedRotation(
+                          turns: expanded ? 0.5 : 0,
+                          duration: const Duration(milliseconds: 250),
+                          child: SDGAIcon(
+                            SDGAIconsStroke.arrowDown01,
+                            color: AppColors.textSecondary,
+                            size: 20.sp,
+                          ),
                         ),
                       ],
                     ),
@@ -404,7 +490,9 @@ class _SeasonsListState extends State<_SeasonsList> {
                 ),
                 if (expanded)
                   Column(
-                    children: episodes.map((ep) => _EpisodeRow(episode: ep, series: widget.series)).toList(),
+                    children: episodes
+                        .map((ep) => _EpisodeRow(episode: ep, series: widget.series))
+                        .toList(),
                   ),
               ],
             ),
@@ -443,16 +531,17 @@ class _EpisodeRow extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
         decoration: BoxDecoration(
-          border: Border(top: BorderSide(color: AppColors.divider, width: 0.5)),
+          border: Border(top: BorderSide(color: AppColors.border, width: 0.5)),
         ),
         child: Row(
           children: [
             Container(
-              width: 34.w,
-              height: 34.w,
+              width: 38.w,
+              height: 38.w,
               decoration: BoxDecoration(
                 color: AppColors.cardLight,
-                borderRadius: BorderRadius.circular(8.r),
+                borderRadius: BorderRadius.circular(10.r),
+                border: Border.all(color: AppColors.border),
               ),
               alignment: Alignment.center,
               child: Text(
@@ -466,14 +555,47 @@ class _EpisodeRow extends StatelessWidget {
             ),
             SizedBox(width: 12.w),
             Expanded(
-              child: Text(
-                episode.title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: AppColors.textPrimary, fontSize: 13.sp),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    episode.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  if (episode.duration != null && episode.duration!.isNotEmpty) ...[
+                    SizedBox(height: 2.h),
+                    Text(
+                      episode.duration!,
+                      style: TextStyle(
+                        color: AppColors.textMuted,
+                        fontSize: 11.sp,
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
-            Icon(Icons.play_arrow_rounded, color: AppColors.primary, size: 24.sp),
+            Container(
+              width: 32.w,
+              height: 32.w,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.15),
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: SDGAIcon(
+                  SDGAIconsBulk.play,
+                  color: AppColors.primary,
+                  size: 16.sp,
+                ),
+              ),
+            ),
           ],
         ),
       ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:sdga_icons/sdga_icons.dart';
 import '../../core/constants/app_colors.dart';
 import '../cubits/movies_cubit.dart';
 import '../widgets/common_widgets.dart';
@@ -40,7 +41,7 @@ class _MoviesScreenState extends State<MoviesScreen> {
         child: Column(
           children: [
             Padding(
-              padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 12.h),
+              padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 14.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -48,11 +49,11 @@ class _MoviesScreenState extends State<MoviesScreen> {
                     'الأفلام',
                     style: TextStyle(
                       color: AppColors.textPrimary,
-                      fontSize: 22.sp,
+                      fontSize: 24.sp,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  SizedBox(height: 14.h),
+                  SizedBox(height: 16.h),
                   SearchField(
                     controller: _searchController,
                     hint: 'ابحث عن فيلم...',
@@ -65,32 +66,12 @@ class _MoviesScreenState extends State<MoviesScreen> {
               child: BlocBuilder<MoviesCubit, MoviesState>(
                 builder: (context, state) {
                   if (state is MoviesLoading || state is MoviesInitial) {
-                    return const Center(
-                      child: CircularProgressIndicator(color: AppColors.primary),
-                    );
+                    return const AppLoadingIndicator();
                   }
                   if (state is MoviesError) {
-                    return Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(24.w),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.error_outline, color: AppColors.error, size: 56.sp),
-                            SizedBox(height: 12.h),
-                            Text(state.message,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(color: AppColors.textSecondary, fontSize: 14.sp)),
-                            SizedBox(height: 16.h),
-                            ElevatedButton(
-                              onPressed: () => context.read<MoviesCubit>().loadData(),
-                              style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-                              child: Text('إعادة المحاولة',
-                                  style: TextStyle(color: Colors.white, fontSize: 13.sp)),
-                            ),
-                          ],
-                        ),
-                      ),
+                    return ErrorStateWidget(
+                      message: state.message,
+                      onRetry: () => context.read<MoviesCubit>().loadData(),
                     );
                   }
                   if (state is MoviesLoaded) {
@@ -139,20 +120,20 @@ class _MoviesContent extends StatelessWidget {
             },
           ),
         ),
-        SizedBox(height: 12.h),
+        SizedBox(height: 14.h),
         Expanded(
           child: state.filteredMovies.isEmpty
-              ? Center(
-            child: Text('لا توجد أفلام',
-                style: TextStyle(color: AppColors.textMuted, fontSize: 14.sp)),
+              ? const EmptyStateWidget(
+            icon: SDGAIconsBulk.video01,
+            message: 'لا توجد أفلام',
           )
               : GridView.builder(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
               crossAxisSpacing: 12.w,
-              mainAxisSpacing: 14.h,
-              childAspectRatio: 0.62,
+              mainAxisSpacing: 16.h,
+              childAspectRatio: 0.6,
             ),
             itemCount: state.filteredMovies.length,
             itemBuilder: (_, i) {
