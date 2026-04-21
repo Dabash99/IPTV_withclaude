@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../core/constants/app_colors.dart';
+// import '../../core/constants/app_colors.dart'; // قم بإلغاء التعليق إذا كنت بحاجة إليه
 
-/// App brand logo — inspired by "ABC iptv player" reference style.
-/// Uses elegant serif-style letter treatment with subtitle beneath.
+/// App brand logo — uses an image asset instead of text.
 class AppLogo extends StatelessWidget {
   final double size;
   final Color color;
@@ -21,30 +20,12 @@ class AppLogo extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        RichText(
-          text: TextSpan(
-            style: TextStyle(
-              fontSize: size.sp,
-              fontWeight: FontWeight.w300,
-              letterSpacing: -1,
-              color: color,
-              height: 1,
-              fontFamily: 'Cairo',
-            ),
-            children: [
-              const TextSpan(text: 'A'),
-              TextSpan(
-                text: 'B',
-                style: TextStyle(
-                  foreground: Paint()
-                    ..style = PaintingStyle.stroke
-                    ..strokeWidth = 1.5
-                    ..color = color,
-                ),
-              ),
-              const TextSpan(text: 'C'),
-            ],
-          ),
+        // تأكد من وضع مسار الصورة الصحيح هنا
+        Image.asset(
+          'assets/images/logo.png',
+          height: size.h, // استخدام ScreenUtil لضبط الحجم
+          fit: BoxFit.contain,
+          // color: color, // قم بإلغاء التعليق هنا فقط إذا كانت صورتك شفافة (أيقونة) وتريد تلوينها
         ),
         if (showTagline) ...[
           SizedBox(height: 2.h),
@@ -66,7 +47,13 @@ class AppLogo extends StatelessWidget {
 /// Horizontal logo variant for app bars
 class AppLogoHorizontal extends StatelessWidget {
   final Color color;
-  const AppLogoHorizontal({super.key, this.color = Colors.white});
+  final double height;
+
+  const AppLogoHorizontal({
+    super.key,
+    this.color = Colors.white,
+    this.height = 26, // تمت إضافة الحجم للتحكم في ارتفاع الصورة
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -74,30 +61,12 @@ class AppLogoHorizontal extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        RichText(
-          text: TextSpan(
-            style: TextStyle(
-              fontSize: 26.sp,
-              fontWeight: FontWeight.w300,
-              letterSpacing: -0.5,
-              color: color,
-              height: 1,
-              fontFamily: 'Cairo',
-            ),
-            children: [
-              const TextSpan(text: 'A'),
-              TextSpan(
-                text: 'B',
-                style: TextStyle(
-                  foreground: Paint()
-                    ..style = PaintingStyle.stroke
-                    ..strokeWidth = 1.2
-                    ..color = color,
-                ),
-              ),
-              const TextSpan(text: 'C'),
-            ],
-          ),
+        // تأكد من وضع مسار الصورة الصحيح هنا
+        Image.asset(
+          'assets/images/logo.png',
+          height: height.h,
+          fit: BoxFit.contain,
+          // color: color, // قم بإلغاء التعليق هنا فقط إذا كنت تريد تلوين الصورة
         ),
         SizedBox(width: 6.w),
         Padding(

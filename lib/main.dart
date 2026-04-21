@@ -71,9 +71,9 @@ class MyApp extends StatelessWidget {
             ),
           ],
           child: MaterialApp(
-            title: 'ABC IPTV Player',
+            title: 'Volex IPTV Player',
             debugShowCheckedModeBanner: false,
-            locale: const Locale('ar'),
+            locale: const Locale('en'),
             supportedLocales: const [
               Locale('ar'),
               Locale('en'),
