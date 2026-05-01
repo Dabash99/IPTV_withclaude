@@ -11,6 +11,7 @@ import '../cubits/watch_history_cubit.dart';
 import '../widgets/about_sheet.dart';
 import '../widgets/app_logo.dart';
 import 'dashboard_screen.dart';
+import 'downloads_screen.dart';
 import 'favorites_screen.dart';
 import 'live_tv_screen.dart';
 import 'login_screen.dart';
@@ -242,7 +243,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                           child: Center(
                             child: SDGAIcon(
-                              SDGAIconsStroke.arrowLeft01,
+                              SDGAIconsStroke.arrowRight02,
                               color: Colors.white,
                               size: 18.sp,
                             ),
@@ -284,26 +285,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   SizedBox(height: 28.h),
 
-                  // View mode
-                  Row(
-                    children: [
-                      Text(
-                        'View List',
-                        style: TextStyle(
-                          color: AppColors.textPrimary,
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const Spacer(),
-                      _ViewToggle(
-                        grid: _gridView,
-                        onChanged: (v) => setState(() => _gridView = v),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 20.h),
-
                   // Profile
                   _ProfileTile(
                     icon: SDGAIconsBulk.user,
@@ -318,6 +299,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         );
                       }
                     },
+                  ),
+                  SizedBox(height: 10.h),
+
+                  // Downloads
+                  _ProfileTile(
+                    icon: SDGAIconsBulk.download04,
+                    label: 'Downloads',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const DownloadsScreen(),
+                      ),
+                    ),
                   ),
                   SizedBox(height: 10.h),
 
@@ -547,7 +541,7 @@ class _ProfileTile extends StatelessWidget {
                 ),
               ),
               SDGAIcon(
-                SDGAIconsStroke.arrowLeft01,
+                SDGAIconsStroke.arrowLeft02,
                 color: AppColors.textMuted,
                 size: 16.sp,
               ),
@@ -599,7 +593,7 @@ class _ProfileScreen extends StatelessWidget {
                       ),
                       child: Center(
                         child: SDGAIcon(
-                          SDGAIconsStroke.arrowLeft01,
+                          SDGAIconsStroke.arrowRight02,
                           color: Colors.white,
                           size: 18.sp,
                         ),

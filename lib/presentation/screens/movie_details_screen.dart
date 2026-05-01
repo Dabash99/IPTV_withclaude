@@ -4,10 +4,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sdga_icons/sdga_icons.dart';
 import '../../core/constants/app_colors.dart';
+import '../../data/datasources/downloads_datasource.dart';
 import '../../data/datasources/favorites_datasource.dart';
+import '../../data/datasources/watch_history_datasource.dart';
 import '../../domain/entities/stream_entities.dart';
 import '../../domain/repositories/iptv_repository.dart';
+import '../cubits/downloads_cubit.dart';
 import '../cubits/favorites_cubit.dart';
+import '../cubits/watch_history_cubit.dart';
 import 'video_player_screen.dart';
 
 class MovieDetailsScreen extends StatefulWidget {
@@ -69,7 +73,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                     child: Row(
                       children: [
                         _CircleBtn(
-                          icon: SDGAIconsStroke.arrowLeft01,
+                          icon: SDGAIconsStroke.arrowRight02,
                           onTap: () => Navigator.pop(context),
                         ),
                         const Spacer(),
@@ -82,6 +86,48 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                           ),
                         ),
                         const Spacer(),
+                        BlocBuilder<DownloadsCubit, DownloadsState>(
+                          builder: (ctx, _) {
+                            final cubit = ctx.read<DownloadsCubit>();
+                            final existing = cubit.findItem(m.streamId, 'movie');
+                            return _DownloadButton(
+                              item: existing,
+                              isDownloadable: DownloadsDataSource.isDownloadable(
+                                m.containerExtension,
+                              ),
+                              onStart: () {
+                                final repo = ctx.read<IptvRepository>();
+                                final url = repo.buildMovieStreamUrl(
+                                  m.streamId,
+                                  m.containerExtension,
+                                );
+                                cubit.startDownload(
+                                  contentId: m.streamId,
+                                  name: m.name,
+                                  image: m.streamIcon,
+                                  type: 'movie',
+                                  url: url,
+                                  extension: m.containerExtension,
+                                );
+                                ScaffoldMessenger.of(ctx).showSnackBar(
+                                  SnackBar(
+                                    content: const Text('Download started'),
+                                    backgroundColor: AppColors.primary,
+                                    behavior: SnackBarBehavior.floating,
+                                    duration: const Duration(seconds: 2),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12.r),
+                                    ),
+                                  ),
+                                );
+                              },
+                              onRemove: existing == null
+                                  ? null
+                                  : () => cubit.remove(existing),
+                            );
+                          },
+                        ),
+                        SizedBox(width: 8.w),
                         BlocBuilder<FavoritesCubit, FavoritesState>(
                           builder: (ctx, _) {
                             final cubit = ctx.read<FavoritesCubit>();
@@ -189,22 +235,48 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                               // Play button (full width)
                               SizedBox(
                                 width: double.infinity,
-                                child: _PlayButton(
-                                  onTap: () {
-                                    final repo = context.read<IptvRepository>();
-                                    final url = repo.buildMovieStreamUrl(
-                                      m.streamId,
-                                      m.containerExtension,
+                                child: BlocBuilder<WatchHistoryCubit, WatchHistoryState>(
+                                  builder: (ctx, historyState) {
+                                    final existing = historyState.items.firstWhere(
+                                          (h) => h.id == m.streamId && h.type == 'movie',
+                                      orElse: () => _emptyHistoryItem(),
                                     );
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => VideoPlayerScreen(
-                                          url: url,
-                                          title: m.name,
-                                          isLive: false,
-                                        ),
-                                      ),
+                                    final hasResume = existing.id != 0 &&
+                                        (existing.progressSeconds ?? 0) > 30;
+                                    return _PlayButton(
+                                      label: hasResume ? 'Resume' : 'Play',
+                                      onTap: () {
+                                        final repo = ctx.read<IptvRepository>();
+                                        // Try to play from local file if downloaded
+                                        final downloadCubit = ctx.read<DownloadsCubit>();
+                                        final downloaded =
+                                        downloadCubit.findItem(m.streamId, 'movie');
+                                        final url = (downloaded != null &&
+                                            downloaded.status == DownloadStatus.completed &&
+                                            downloaded.localPath != null)
+                                            ? downloaded.localPath!
+                                            : repo.buildMovieStreamUrl(
+                                          m.streamId,
+                                          m.containerExtension,
+                                        );
+                                        Navigator.push(
+                                          ctx,
+                                          MaterialPageRoute(
+                                            builder: (_) => VideoPlayerScreen(
+                                              url: url,
+                                              title: m.name,
+                                              isLive: false,
+                                              contentId: m.streamId,
+                                              contentType: 'movie',
+                                              contentImage: m.streamIcon,
+                                              contentExtension: m.containerExtension,
+                                              resumeFromSeconds: hasResume
+                                                  ? existing.progressSeconds
+                                                  : null,
+                                            ),
+                                          ),
+                                        );
+                                      },
                                     );
                                   },
                                 ),
@@ -376,7 +448,8 @@ class _CircleBtn extends StatelessWidget {
 
 class _PlayButton extends StatelessWidget {
   final VoidCallback onTap;
-  const _PlayButton({required this.onTap});
+  final String label;
+  const _PlayButton({required this.onTap, this.label = 'Play'});
 
   @override
   Widget build(BuildContext context) {
@@ -397,7 +470,7 @@ class _PlayButton extends StatelessWidget {
             SDGAIcon(SDGAIconsBulk.play, color: Colors.white, size: 18.sp),
             SizedBox(width: 6.w),
             Text(
-              'Play',
+              label,
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 13.sp,
@@ -405,6 +478,150 @@ class _PlayButton extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+// Helper for the "no history" case
+WatchHistoryItem _emptyHistoryItem() => WatchHistoryItem(
+  id: 0,
+  name: '',
+  image: '',
+  type: '',
+  lastWatched: DateTime.fromMillisecondsSinceEpoch(0),
+);
+
+// Download button: shows different states (download / progress / done / unavailable)
+class _DownloadButton extends StatelessWidget {
+  final DownloadItem? item;
+  final bool isDownloadable;
+  final VoidCallback onStart;
+  final VoidCallback? onRemove;
+
+  const _DownloadButton({
+    required this.item,
+    required this.isDownloadable,
+    required this.onStart,
+    required this.onRemove,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (!isDownloadable) {
+      return Tooltip(
+        message: 'Cannot download HLS streams',
+        child: Container(
+          width: 40.w,
+          height: 40.w,
+          decoration: BoxDecoration(
+            color: AppColors.surface.withOpacity(0.5),
+            shape: BoxShape.circle,
+            border: Border.all(color: AppColors.border.withOpacity(0.3)),
+          ),
+          child: Center(
+            child: SDGAIcon(
+              SDGAIconsStroke.download04,
+              color: AppColors.textMuted,
+              size: 18.sp,
+            ),
+          ),
+        ),
+      );
+    }
+    if (item == null) {
+      return GestureDetector(
+        onTap: onStart,
+        child: Container(
+          width: 40.w,
+          height: 40.w,
+          decoration: BoxDecoration(
+            color: AppColors.surface.withOpacity(0.7),
+            shape: BoxShape.circle,
+            border: Border.all(color: AppColors.border.withOpacity(0.5)),
+          ),
+          child: Center(
+            child: SDGAIcon(
+              SDGAIconsBulk.download04,
+              color: Colors.white,
+              size: 18.sp,
+            ),
+          ),
+        ),
+      );
+    }
+    if (item!.status == DownloadStatus.completed) {
+      return GestureDetector(
+        onTap: onRemove,
+        child: Container(
+          width: 40.w,
+          height: 40.w,
+          decoration: BoxDecoration(
+            color: AppColors.success.withOpacity(0.2),
+            shape: BoxShape.circle,
+            border: Border.all(color: AppColors.success.withOpacity(0.4)),
+          ),
+          child: Center(
+            child: SDGAIcon(
+              SDGAIconsBulk.tick02,
+              color: AppColors.success,
+              size: 18.sp,
+            ),
+          ),
+        ),
+      );
+    }
+    if (item!.status == DownloadStatus.downloading) {
+      return Container(
+        width: 40.w,
+        height: 40.w,
+        decoration: BoxDecoration(
+          color: AppColors.primary.withOpacity(0.2),
+          shape: BoxShape.circle,
+        ),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            SizedBox(
+              width: 36.w,
+              height: 36.w,
+              child: CircularProgressIndicator(
+                value: item!.progress > 0 ? item!.progress : null,
+                strokeWidth: 2.5,
+                color: AppColors.primary,
+                backgroundColor: AppColors.cardLight,
+              ),
+            ),
+            Text(
+              '${(item!.progress * 100).toStringAsFixed(0)}',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 9.sp,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    // Failed or queued
+    return GestureDetector(
+      onTap: onStart,
+      child: Container(
+        width: 40.w,
+        height: 40.w,
+        decoration: BoxDecoration(
+          color: AppColors.error.withOpacity(0.15),
+          shape: BoxShape.circle,
+          border: Border.all(color: AppColors.error.withOpacity(0.3)),
+        ),
+        child: Center(
+          child: SDGAIcon(
+            SDGAIconsStroke.reload,
+            color: AppColors.error,
+            size: 16.sp,
+          ),
         ),
       ),
     );

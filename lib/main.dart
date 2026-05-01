@@ -6,6 +6,7 @@ import 'core/constants/app_colors.dart';
 import 'domain/repositories/iptv_repository.dart';
 import 'injector.dart';
 import 'presentation/cubits/auth_cubit.dart';
+import 'presentation/cubits/downloads_cubit.dart';
 import 'presentation/cubits/favorites_cubit.dart';
 import 'presentation/cubits/live_cubit.dart';
 import 'presentation/cubits/movies_cubit.dart';
@@ -69,11 +70,14 @@ class MyApp extends StatelessWidget {
             BlocProvider(
               create: (_) => WatchHistoryCubit(inj.watchHistoryDataSource),
             ),
+            BlocProvider(
+              create: (_) => DownloadsCubit(inj.downloadsDataSource),
+            ),
           ],
           child: MaterialApp(
             title: 'Volex IPTV Player',
             debugShowCheckedModeBanner: false,
-            locale: const Locale('en'),
+            locale: const Locale('ar'),
             supportedLocales: const [
               Locale('ar'),
               Locale('en'),

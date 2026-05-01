@@ -1,20 +1,37 @@
+import 'dart:async';
 import 'package:better_player_plus/better_player_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sdga_icons/sdga_icons.dart';
 import '../../core/constants/app_colors.dart';
+import '../../data/datasources/watch_history_datasource.dart';
+import '../cubits/watch_history_cubit.dart';
 
 class VideoPlayerScreen extends StatefulWidget {
   final String url;
   final String title;
   final bool isLive;
 
+  /// History tracking - if provided, the player will save resume position
+  /// to WatchHistoryCubit periodically (only for VOD content, not live)
+  final int? contentId;
+  final String? contentType; // 'movie' | 'series'
+  final String? contentImage;
+  final String? contentExtension;
+  final int? resumeFromSeconds;
+
   const VideoPlayerScreen({
     super.key,
     required this.url,
     required this.title,
     this.isLive = false,
+    this.contentId,
+    this.contentType,
+    this.contentImage,
+    this.contentExtension,
+    this.resumeFromSeconds,
   });
 
   @override
@@ -25,6 +42,13 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   BetterPlayerController? _controller;
   bool _initialized = false;
   String? _error;
+  Timer? _saveTimer;
+  bool _resumeApplied = false;
+
+  bool get _trackHistory =>
+      !widget.isLive &&
+          widget.contentId != null &&
+          widget.contentType != null;
 
   @override
   void initState() {
@@ -64,6 +88,10 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
           aspectRatio: 16 / 9,
           allowedScreenSleep: false,
           autoDetectFullscreenDeviceOrientation: true,
+          // Start at saved resume position
+          startAt: widget.resumeFromSeconds != null && widget.resumeFromSeconds! > 0
+              ? Duration(seconds: widget.resumeFromSeconds!)
+              : null,
           controlsConfiguration: const BetterPlayerControlsConfiguration(
             enableSkips: true,
             enablePlayPause: true,
@@ -82,17 +110,19 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             iconsColor: Colors.white,
             liveTextColor: AppColors.live,
           ),
-          errorBuilder: (context, errorMessage) => _buildError(errorMessage ?? 'فشل التشغيل'),
-          eventListener: (event) {
-            if (event.betterPlayerEventType == BetterPlayerEventType.exception) {
-              if (mounted) {
-                setState(() => _error = 'فشل تشغيل المحتوى. تأكد من رابط السيرفر.');
-              }
-            }
-          },
+          errorBuilder: (context, errorMessage) =>
+              _buildError(errorMessage ?? 'فشل التشغيل'),
+          eventListener: _onPlayerEvent,
         ),
         betterPlayerDataSource: dataSource,
       );
+
+      // Start periodic save if tracking history
+      if (_trackHistory) {
+        _saveTimer = Timer.periodic(const Duration(seconds: 10), (_) {
+          _saveProgress();
+        });
+      }
 
       setState(() => _initialized = true);
     } catch (e) {
@@ -100,8 +130,59 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     }
   }
 
+  void _onPlayerEvent(BetterPlayerEvent event) {
+    if (event.betterPlayerEventType == BetterPlayerEventType.exception) {
+      if (mounted) {
+        setState(() => _error = 'فشل تشغيل المحتوى. تأكد من رابط السيرفر.');
+      }
+    }
+
+    // Save progress on pause/finish too
+    if (event.betterPlayerEventType == BetterPlayerEventType.pause ||
+        event.betterPlayerEventType == BetterPlayerEventType.finished) {
+      _saveProgress();
+    }
+  }
+
+  Future<void> _saveProgress() async {
+    if (!_trackHistory || _controller == null) return;
+    final video = _controller!.videoPlayerController;
+    if (video == null) return;
+
+    final position = video.value.position;
+    final duration = video.value.duration;
+    if (duration == null || duration.inSeconds <= 0) return;
+
+    // Don't save if barely watched (< 30s) or fully finished
+    if (position.inSeconds < 30) return;
+
+    final progress = position.inSeconds / duration.inSeconds;
+    final isFinished = progress > 0.95;
+
+    try {
+      final cubit = context.read<WatchHistoryCubit>();
+      await cubit.record(
+        WatchHistoryItem(
+          id: widget.contentId!,
+          name: widget.title,
+          image: widget.contentImage ?? '',
+          type: widget.contentType!,
+          extension: widget.contentExtension,
+          progressSeconds: isFinished ? 0 : position.inSeconds,
+          durationSeconds: duration.inSeconds,
+          lastWatched: DateTime.now(),
+        ),
+      );
+    } catch (_) {
+      // Cubit may not be available; skip silently
+    }
+  }
+
   @override
   void dispose() {
+    _saveTimer?.cancel();
+    // Save one last time before closing
+    _saveProgress();
     _controller?.dispose();
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
@@ -120,20 +201,12 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         backgroundColor: Colors.black,
         elevation: 0,
         leading: IconButton(
-          icon: SDGAIcon(
-            SDGAIconsStroke.arrowLeft01,
-            color: Colors.white,
-            size: 22.sp,
-          ),
+          icon: SDGAIcon(SDGAIconsStroke.arrowRight02, color: Colors.white, size: 22.sp),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           widget.title,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 15.sp,
-            fontWeight: FontWeight.w600,
-          ),
+          style: TextStyle(color: Colors.white, fontSize: 15.sp, fontWeight: FontWeight.w600),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
@@ -146,12 +219,6 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                 decoration: BoxDecoration(
                   color: AppColors.live,
                   borderRadius: BorderRadius.circular(6.r),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.live.withOpacity(0.5),
-                      blurRadius: 8,
-                    ),
-                  ],
                 ),
                 alignment: Alignment.center,
                 child: Row(
@@ -160,10 +227,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                     Container(
                       width: 6.w,
                       height: 6.w,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                      ),
+                      decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
                     ),
                     SizedBox(width: 5.w),
                     Text(
@@ -204,18 +268,14 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             SizedBox(
               width: 48.w,
               height: 48.w,
-              child: const CircularProgressIndicator(
-                color: AppColors.accent,
-                strokeWidth: 3,
-              ),
+              child: const CircularProgressIndicator(color: AppColors.primary, strokeWidth: 3),
             ),
             SizedBox(height: 16.h),
             Text(
-              'جاري التحميل...',
-              style: TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: 13.sp,
-              ),
+              widget.resumeFromSeconds != null && widget.resumeFromSeconds! > 0
+                  ? 'Resuming...'
+                  : 'Loading...',
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 13.sp),
             ),
           ],
         ),
@@ -251,47 +311,31 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
               Text(
                 message,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14.sp,
-                  height: 1.5,
-                ),
+                style: TextStyle(color: Colors.white, fontSize: 14.sp, height: 1.5),
               ),
               SizedBox(height: 20.h),
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12.r),
-                  boxShadow: AppColors.primaryGlow,
-                ),
-                child: ElevatedButton.icon(
-                  icon: SDGAIcon(
-                    SDGAIconsStroke.reload,
+              ElevatedButton.icon(
+                icon: SDGAIcon(SDGAIconsStroke.reload, color: Colors.white, size: 18.sp),
+                label: Text(
+                  'Retry',
+                  style: TextStyle(
                     color: Colors.white,
-                    size: 18.sp,
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w700,
                   ),
-                  label: Text(
-                    'إعادة المحاولة',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _error = null;
-                      _initialized = false;
-                    });
-                    _initPlayer();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
-                    elevation: 0,
-                  ),
+                ),
+                onPressed: () {
+                  setState(() {
+                    _error = null;
+                    _initialized = false;
+                  });
+                  _initPlayer();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100.r)),
+                  elevation: 0,
                 ),
               ),
             ],
