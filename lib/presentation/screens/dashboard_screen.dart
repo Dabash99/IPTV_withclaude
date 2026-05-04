@@ -16,6 +16,7 @@ import '../widgets/app_logo.dart';
 import '../widgets/poster_backdrop.dart';
 import 'home_screen.dart';
 import 'movie_details_screen.dart';
+import 'search_screen.dart';
 import 'series_screen.dart';
 import 'video_player_screen.dart';
 
@@ -101,10 +102,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         SizedBox(width: 8.w),
                         _RoundIconButton(
                           icon: SDGAIconsStroke.search02,
-                          onTap: () {
-                            // Jump to movies tab (which has search)
-                            HomeTabController.of(context)?.switchTab(2);
-                          },
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const SearchScreen()),
+                          ),
                         ),
                       ],
                     ),
@@ -259,9 +260,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           return const SizedBox.shrink();
                         },
                       ),
-                      SizedBox(height: 32.h),
+                      SizedBox(height: 28.h),
                     ],
                   ),
+                ),
+
+                // Smart Recommendations: "Because you watched X"
+                SliverToBoxAdapter(
+                  child: _RecommendationsSection(),
+                ),
+
+                // Trending Now (genre-based)
+                SliverToBoxAdapter(
+                  child: _TrendingSection(),
                 ),
               ],
             ),
@@ -595,6 +606,146 @@ class _PosterThumb extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+// ── Smart Recommendations ──────────────────────────────────────────
+class _RecommendationsSection extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<WatchHistoryCubit, WatchHistoryState>(
+      builder: (context, historyState) {
+        if (historyState.items.isEmpty) return const SizedBox.shrink();
+        return BlocBuilder<MoviesCubit, MoviesState>(
+          builder: (context, moviesState) {
+            if (moviesState is! MoviesLoaded) return const SizedBox.shrink();
+
+            final lastItem = historyState.items.first;
+            if (lastItem.type != 'movie') return const SizedBox.shrink();
+            final lastMovie = moviesState.movies.where((m) => m.streamId == lastItem.id).firstOrNull;
+            if (lastMovie == null || lastMovie.genre?.isEmpty != false) return const SizedBox.shrink();
+
+            final genre = lastMovie.genre!.split(',').first.trim();
+            final recs = moviesState.movies
+                .where((m) => m.streamId != lastMovie.streamId && m.genre?.contains(genre) == true)
+                .take(15)
+                .toList();
+            if (recs.isEmpty) return const SizedBox.shrink();
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: RichText(
+                    text: TextSpan(
+                      style: TextStyle(fontSize: 12.sp, fontFamily: 'Cairo'),
+                      children: [
+                        TextSpan(text: 'Because you watched ', style: TextStyle(color: AppColors.textMuted, fontWeight: FontWeight.w400)),
+                        TextSpan(text: lastMovie.name, style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w700)),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(height: 14.h),
+                SizedBox(
+                  height: 210.h,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    itemCount: recs.length,
+                    separatorBuilder: (_, __) => SizedBox(width: 12.w),
+                    itemBuilder: (_, i) => _PosterThumb(
+                      name: recs[i].name,
+                      image: recs[i].streamIcon,
+                      onTap: () => Navigator.push(context, MaterialPageRoute(
+                        builder: (_) => MovieDetailsScreen(movie: recs[i]),
+                      )),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 28.h),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+// ── Trending Now (genre-based) ─────────────────────────────────────
+class _TrendingSection extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<WatchHistoryCubit, WatchHistoryState>(
+      builder: (context, historyState) {
+        if (historyState.items.isEmpty) return const SizedBox.shrink();
+        return BlocBuilder<MoviesCubit, MoviesState>(
+          builder: (context, moviesState) {
+            if (moviesState is! MoviesLoaded) return const SizedBox.shrink();
+
+            final watchedIds = historyState.items.where((i) => i.type == 'movie').map((i) => i.id).toSet();
+            final movieMap = {for (final m in moviesState.movies) m.streamId: m};
+            final genreCount = <String, int>{};
+            for (final id in watchedIds) {
+              final m = movieMap[id];
+              if (m?.genre?.isNotEmpty == true) {
+                for (final g in m!.genre!.split(',')) {
+                  final t = g.trim();
+                  if (t.isNotEmpty) genreCount[t] = (genreCount[t] ?? 0) + 1;
+                }
+              }
+            }
+            if (genreCount.isEmpty) return const SizedBox.shrink();
+
+            final topGenre = genreCount.entries.reduce((a, b) => a.value >= b.value ? a : b).key;
+            final trending = moviesState.movies
+                .where((m) => !watchedIds.contains(m.streamId) && m.genre?.contains(topGenre) == true)
+                .toList()
+              ..sort((a, b) => b.rating.compareTo(a.rating));
+            final toShow = trending.take(15).toList();
+            if (toShow.isEmpty) return const SizedBox.shrink();
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: RichText(
+                    text: TextSpan(
+                      style: TextStyle(fontSize: 15.sp, letterSpacing: 1, fontFamily: 'Cairo'),
+                      children: [
+                        TextSpan(text: 'TRENDING ', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w300)),
+                        TextSpan(text: topGenre.toUpperCase(), style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w800)),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(height: 14.h),
+                SizedBox(
+                  height: 210.h,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    itemCount: toShow.length,
+                    separatorBuilder: (_, __) => SizedBox(width: 12.w),
+                    itemBuilder: (_, i) => _PosterThumb(
+                      name: toShow[i].name,
+                      image: toShow[i].streamIcon,
+                      onTap: () => Navigator.push(context, MaterialPageRoute(
+                        builder: (_) => MovieDetailsScreen(movie: toShow[i]),
+                      )),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 32.h),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }

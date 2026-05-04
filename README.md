@@ -8,7 +8,7 @@
 ![Clean Architecture](https://img.shields.io/badge/Architecture-Clean-success?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
 
-**A production-grade IPTV player built with Flutter, supporting Xtream Codes API with full Live TV, Movies, Series, and EPG support.**
+**A production-grade IPTV player built with Flutter, supporting Xtream Codes API with full Live TV, Movies, Series, Downloads, Smart Recommendations, and EPG support.**
 
 [Features](#-features) • [Screenshots](#-screenshots) • [Architecture](#%EF%B8%8F-architecture) • [Getting Started](#-getting-started) • [API](#-xtream-codes-api) • [Contributing](#-contributing)
 
@@ -21,20 +21,63 @@
 ### 🎬 Content Support
 - **📡 Live TV** — Stream live channels with category filtering and real-time search
 - **🎞️ Movies (VOD)** — Browse movie library with posters, ratings, cast, plot, and full metadata
-- **📺 Series** — Watch series organized by seasons with episode details
+- **📺 Series** — Watch series organized by seasons with per-episode details and downloads
 - **📅 EPG (Electronic Program Guide)** — View current and upcoming programs per channel
 - **❤️ Favorites** — Save your favorite channels, movies, and series locally
 
+### ⬇️ Downloads
+- **📥 Movie Downloads** — Download full movies for offline playback
+- **🎬 Episode Downloads** — Download individual series episodes
+- **📊 Progress Tracking** — Real-time download progress with percentage indicator
+- **✅ Download States** — Not started / Downloading / Completed / Failed with retry
+- **🗑️ Manage Downloads** — Delete downloaded files from the downloads screen
+- **▶️ Offline Playback** — Plays from local file automatically when downloaded
+
+### 🕐 Watch History & Resume
+- **⏯️ Resume Watching** — Continues from where you left off (movies)
+- **📋 Watch History** — Keeps track of recently watched content (up to 20 items)
+- **🔥 Keep Watching** — Dashboard carousel showing in-progress content with progress bars
+
+### 🤖 Smart Recommendations
+- **💡 "Because you watched X"** — Surfaces similar unwatched movies based on your last watched genre
+- **📈 Trending Now** — Finds your most-watched genre across all history and shows top-rated unwatched content
+
+### 🔍 Unified Search
+- **Single search screen** for Live channels, Movies, and Series
+- **Filters** — Genre, Year, and minimum Rating pickers
+- **Tab navigation** — switch between Live / Movies / Series results instantly
+
+### 📊 Statistics
+- **Watch time this month** and all-time total
+- **Streak days** — consecutive days with watch activity
+- **Top genre** — computed from your full watch history
+- **Content breakdown** — movies vs series count
+- **Recently watched** list with progress bars
+
+### 🎮 Player Gestures
+- **Swipe up/down on left** → screen brightness
+- **Swipe up/down on right** → system volume
+- **Double-tap left** → seek −10 seconds
+- **Double-tap right** → seek +10 seconds
+
+### 📲 Picture-in-Picture (PiP)
+- **PiP button** in the player toolbar for VOD content
+- Keeps playing in a floating window while using other apps (Android)
+
+### ⏭️ Auto-Play Next Episode
+- When an episode finishes, a **5-second countdown overlay** appears
+- Options to **Play Now** or **Cancel**; auto-advances on timeout
+
 ### 🎨 UI/UX
-- **🌙 Modern Dark Theme** with purple accent (`#6C3BE4`)
-- **🌐 Full Arabic RTL Support** with proper localization delegates
-- **📱 Responsive Design** using `flutter_screenutil`
+- **🌙 Modern Dark Theme** with blue accent (`#3D5AFF`) and cyan highlight (`#00F2FF`)
+- **🌐 Full Arabic RTL Support** with proper localization delegates and explicit `Directionality`
+- **📱 Responsive Design** using `flutter_screenutil` (390×844 base)
 - **⚡ Smooth Animations** and transitions
-- **🎯 Bottom Navigation** with 5 main sections
+- **🎯 Bottom Navigation** with 6 main sections (Dashboard, Live TV, Movies, Series, Favorites, Settings)
 
 ### 🔐 Security & Storage
 - **🔒 Secure Credentials** stored via `flutter_secure_storage` (encrypted)
-- **💾 Favorites Persistence** using `SharedPreferences`
+- **💾 Local Persistence** using `SharedPreferences` (favorites, downloads, watch history)
 - **🔑 Auto-login** on app restart
 
 ### 🎥 Video Playback
@@ -60,6 +103,10 @@ lib/
 ├── data/                      # Data layer
 │   ├── models/                # JSON serializable models
 │   ├── datasources/           # Remote (Dio) + Local (SecureStorage + SharedPrefs)
+│   │   ├── downloads_datasource.dart    # File download + progress tracking
+│   │   ├── favorites_datasource.dart
+│   │   ├── watch_history_datasource.dart
+│   │   └── iptv_remote_datasource.dart
 │   └── repositories/          # Repository implementations
 │
 ├── domain/                    # Business logic layer
@@ -68,8 +115,24 @@ lib/
 │   └── usecases/              # Single-responsibility use cases
 │
 ├── presentation/              # UI layer
-│   ├── cubits/                # State management (Auth, Live, Movies, Series, Favorites)
-│   ├── screens/               # App screens
+│   ├── cubits/                # State management
+│   │   ├── auth_cubit.dart
+│   │   ├── downloads_cubit.dart
+│   │   ├── favorites_cubit.dart
+│   │   ├── live_cubit.dart
+│   │   ├── movies_cubit.dart
+│   │   ├── series_cubit.dart
+│   │   └── watch_history_cubit.dart
+│   ├── screens/
+│   │   ├── dashboard_screen.dart       # Home + recommendations + trending
+│   │   ├── search_screen.dart          # Unified search (Live / Movies / Series)
+│   │   ├── statistics_screen.dart      # Watch stats + top genre
+│   │   ├── movie_details_screen.dart
+│   │   ├── series_screen.dart          # Series list + episode details + downloads
+│   │   ├── video_player_screen.dart    # Gestures + PiP + auto-play next
+│   │   ├── downloads_screen.dart
+│   │   ├── favorites_screen.dart
+│   │   └── ...
 │   └── widgets/               # Reusable widgets
 │
 ├── injector.dart              # Dependency injection
@@ -81,15 +144,19 @@ lib/
 | Package | Purpose |
 |---------|---------|
 | `flutter_bloc` | State management with Cubit pattern |
-| `dio` | HTTP client with interceptors |
+| `dio` | HTTP client + file download with progress |
 | `dartz` | Functional error handling (`Either<Failure, Success>`) |
 | `equatable` | Value equality for entities |
-| `better_player_plus` | Advanced video player |
+| `better_player_plus` | Advanced video player with PiP support |
 | `flutter_secure_storage` | Encrypted credential storage |
-| `shared_preferences` | Favorites persistence |
+| `shared_preferences` | Favorites, downloads, watch history persistence |
+| `path_provider` | App documents directory for downloaded files |
+| `screen_brightness` | Gesture-controlled screen brightness |
+| `volume_controller` | Gesture-controlled system volume |
 | `flutter_screenutil` | Responsive design |
 | `cached_network_image` | Image caching |
 | `flutter_localizations` | Arabic RTL support |
+| `intl` | Internationalization |
 
 ---
 
@@ -125,13 +192,17 @@ lib/
 
 #### Android Setup
 
-The app requires cleartext HTTP traffic (most IPTV servers use HTTP). This is already configured in `android/app/src/main/AndroidManifest.xml`:
+The app requires cleartext HTTP traffic (most IPTV servers use HTTP). Already configured in `android/app/src/main/AndroidManifest.xml`:
 
 ```xml
 <uses-permission android:name="android.permission.INTERNET" />
 <application
     android:usesCleartextTraffic="true"
     android:networkSecurityConfig="@xml/network_security_config">
+
+<activity
+    android:supportsPictureInPicture="true"
+    android:configChanges="orientation|keyboardHidden|keyboard|screenSize|...">
 ```
 
 #### iOS Setup
@@ -179,6 +250,15 @@ Movie:  {url}/movie/{user}/{pass}/{stream_id}.{ext}
 Series: {url}/series/{user}/{pass}/{episode_id}.{ext}
 ```
 
+### Download Storage
+
+Downloaded files are saved to:
+```
+{appDocumentsDir}/iptv_downloads/{type}_{contentId}_{name}.{ext}
+```
+
+Supported download formats: `mp4`, `mkv`, `avi`, `webm` (HLS `.m3u8` streams cannot be downloaded).
+
 ---
 
 ## 📸 Screenshots
@@ -200,8 +280,18 @@ Series: {url}/series/{user}/{pass}/{episode_id}.{ext}
 - [x] EPG (Electronic Program Guide)
 - [x] Favorites system
 - [x] Arabic RTL support
-- [ ] Continue Watching (resume playback)
-- [ ] Download for offline viewing
+- [x] Continue Watching (resume playback)
+- [x] Watch history (up to 20 items)
+- [x] Download movies for offline viewing
+- [x] Download individual series episodes
+- [x] Dashboard with "Keep Watching" carousel
+- [x] Smart Recommendations ("Because you watched X")
+- [x] Trending Now rail (genre-based)
+- [x] Unified Search (Live + Movies + Series + filters)
+- [x] Statistics page (watch time, streak, top genre)
+- [x] Player gestures (brightness / volume / seek)
+- [x] Picture-in-Picture (PiP) mode
+- [x] Auto-play next episode with countdown
 
 ---
 
@@ -216,6 +306,45 @@ The app uses **Cubit** (a lightweight BLoC) for state management:
 - `MoviesCubit` — Movie catalog with filtering
 - `SeriesCubit` — Series list + `SeriesDetailsCubit` for episodes
 - `FavoritesCubit` — Favorites across all content types
+- `DownloadsCubit` — Download queue, progress tracking, local file management
+- `WatchHistoryCubit` — Watch history with resume position
+
+### Player Gestures
+
+The video player overlays a transparent `GestureDetector` on top of `BetterPlayer`:
+
+| Gesture | Action |
+|---------|--------|
+| Vertical drag — left half | Screen brightness |
+| Vertical drag — right half | System volume |
+| Double-tap — left half | Seek −10 seconds |
+| Double-tap — right half | Seek +10 seconds |
+
+Visual indicators (vertical progress bar + percentage) appear and auto-hide after 1.5 seconds.
+
+### Smart Recommendations
+
+Recommendations are computed at runtime from the loaded catalog and watch history — no backend required:
+
+1. **"Because you watched X"** — matches the most recently watched movie's genre against the full catalog
+2. **"Trending [Genre]"** — counts genre frequency across all history items, picks the top genre, then shows the highest-rated unwatched movies in it
+
+### Download System
+
+The download system (`DownloadsDataSource`) uses Dio for file download with real-time progress:
+
+```dart
+cubit.startDownload(
+  contentId: id,
+  name: 'Episode Title',
+  image: coverUrl,
+  type: 'series', // or 'movie'
+  url: streamUrl,
+  extension: 'mp4',
+);
+```
+
+Download state is persisted in `SharedPreferences` and survives app restarts.
 
 ### Error Handling
 
@@ -225,15 +354,11 @@ Uses `dartz`'s `Either<Failure, Success>` pattern:
 Future<Either<Failure, UserCredentials>> login({...});
 ```
 
-Failures are typed:
-- `NetworkFailure` — Connection issues
-- `AuthFailure` — Invalid credentials
-- `ServerFailure` — Server errors
-- `CacheFailure` — Local storage issues
+Failures are typed: `NetworkFailure`, `AuthFailure`, `ServerFailure`, `CacheFailure`.
 
 ### Localization
 
-The app supports Arabic (RTL) and English:
+The app defaults to Arabic (RTL):
 
 ```dart
 locale: const Locale('ar'),
@@ -244,6 +369,8 @@ localizationsDelegates: const [
   GlobalCupertinoLocalizations.delegate,
 ],
 ```
+
+RTL is also enforced explicitly on detail screens via `Directionality(textDirection: TextDirection.rtl)`.
 
 ---
 
@@ -274,7 +401,6 @@ This project is for **educational purposes only**. The app itself does not provi
 ## 📧 Contact
 
 **Ahmed Dabash** — [@Dabash99](https://github.com/Dabash99)
-
 
 ---
 

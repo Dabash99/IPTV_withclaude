@@ -4,10 +4,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sdga_icons/sdga_icons.dart';
 import '../../core/constants/app_colors.dart';
+import '../../data/datasources/downloads_datasource.dart';
 import '../../data/datasources/favorites_datasource.dart';
 import '../../domain/entities/stream_entities.dart';
 import '../../domain/repositories/iptv_repository.dart';
 import '../../domain/usecases/usecases.dart';
+import '../cubits/downloads_cubit.dart';
 import '../cubits/favorites_cubit.dart';
 import '../cubits/series_cubit.dart';
 import '../widgets/app_drawer.dart';
@@ -252,7 +254,9 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
       create: (ctx) => SeriesDetailsCubit(
         getSeriesInfoUseCase: GetSeriesInfoUseCase(ctx.read<IptvRepository>()),
       )..loadSeriesInfo(s.seriesId),
-      child: Scaffold(
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: Scaffold(
         backgroundColor: AppColors.background,
         body: Stack(
           children: [
@@ -625,10 +629,13 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                               Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 16.w),
                                 child: Column(
-                                  children: episodes
-                                      .map((ep) => _EpisodeRow(
-                                    episode: ep,
+                                  children: episodes.asMap().entries
+                                      .map((entry) => _EpisodeRow(
+                                    episode: entry.value,
                                     series: s,
+                                    nextEpisode: entry.key < episodes.length - 1
+                                        ? episodes[entry.key + 1]
+                                        : null,
                                   ))
                                       .toList(),
                                 ),
@@ -646,6 +653,7 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
             ),
           ],
         ),
+      ),
       ),
     );
   }
@@ -807,7 +815,8 @@ class _CastChip extends StatelessWidget {
 class _EpisodeRow extends StatelessWidget {
   final Episode episode;
   final Series series;
-  const _EpisodeRow({required this.episode, required this.series});
+  final Episode? nextEpisode;
+  const _EpisodeRow({required this.episode, required this.series, this.nextEpisode});
 
   @override
   Widget build(BuildContext context) {
@@ -823,10 +832,12 @@ class _EpisodeRow extends StatelessWidget {
         borderRadius: BorderRadius.circular(14.r),
         onTap: () {
           final repo = context.read<IptvRepository>();
-          final url = repo.buildSeriesStreamUrl(
-            int.tryParse(episode.id) ?? 0,
-            episode.containerExtension,
-          );
+          final epId = int.tryParse(episode.id) ?? 0;
+          final url = repo.buildSeriesStreamUrl(epId, episode.containerExtension);
+          final nextEp = nextEpisode;
+          final nextUrl = nextEp != null
+              ? repo.buildSeriesStreamUrl(int.tryParse(nextEp.id) ?? 0, nextEp.containerExtension)
+              : null;
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -834,6 +845,15 @@ class _EpisodeRow extends StatelessWidget {
                 url: url,
                 title: '${series.name} - ${episode.title}',
                 isLive: false,
+                contentId: epId,
+                contentType: 'series',
+                contentImage: episode.movieImage ?? series.cover,
+                contentExtension: episode.containerExtension,
+                nextEpisodeUrl: nextUrl,
+                nextEpisodeTitle: nextEp != null ? '${series.name} - ${nextEp.title}' : null,
+                nextEpisodeContentId: nextEp != null ? int.tryParse(nextEp.id) : null,
+                nextEpisodeImage: nextEp?.movieImage ?? series.cover,
+                nextEpisodeExtension: nextEp?.containerExtension,
               ),
             ),
           );
@@ -882,6 +902,8 @@ class _EpisodeRow extends StatelessWidget {
                 ],
               ),
             ),
+            _EpDownloadBtn(episode: episode, series: series),
+            SizedBox(width: 6.w),
             Container(
               width: 34.w,
               height: 34.w,
@@ -900,6 +922,126 @@ class _EpisodeRow extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _EpDownloadBtn extends StatelessWidget {
+  final Episode episode;
+  final Series series;
+  const _EpDownloadBtn({required this.episode, required this.series});
+
+  @override
+  Widget build(BuildContext context) {
+    final epId = int.tryParse(episode.id) ?? 0;
+    if (!DownloadsDataSource.isDownloadable(episode.containerExtension)) {
+      return const SizedBox.shrink();
+    }
+    return BlocBuilder<DownloadsCubit, DownloadsState>(
+      builder: (ctx, _) {
+        final cubit = ctx.read<DownloadsCubit>();
+        final existing = cubit.findItem(epId, 'series');
+
+        if (existing == null) {
+          return GestureDetector(
+            onTap: () {
+              final repo = ctx.read<IptvRepository>();
+              final url = repo.buildSeriesStreamUrl(epId, episode.containerExtension);
+              cubit.startDownload(
+                contentId: epId,
+                name: '${series.name} - ${episode.title}',
+                image: series.cover,
+                type: 'series',
+                url: url,
+                extension: episode.containerExtension,
+              );
+            },
+            child: Container(
+              width: 34.w,
+              height: 34.w,
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Center(
+                child: SDGAIcon(SDGAIconsBulk.download04, color: Colors.white, size: 14.sp),
+              ),
+            ),
+          );
+        }
+
+        if (existing.status == DownloadStatus.completed) {
+          return GestureDetector(
+            onTap: () => cubit.remove(existing),
+            child: Container(
+              width: 34.w,
+              height: 34.w,
+              decoration: BoxDecoration(
+                color: AppColors.success.withOpacity(0.2),
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.success.withOpacity(0.4)),
+              ),
+              child: Center(
+                child: SDGAIcon(SDGAIconsBulk.tick02, color: AppColors.success, size: 14.sp),
+              ),
+            ),
+          );
+        }
+
+        if (existing.status == DownloadStatus.downloading) {
+          return SizedBox(
+            width: 34.w,
+            height: 34.w,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                CircularProgressIndicator(
+                  value: existing.progress > 0 ? existing.progress : null,
+                  strokeWidth: 2,
+                  color: AppColors.primary,
+                  backgroundColor: AppColors.cardLight,
+                ),
+                Text(
+                  '${(existing.progress * 100).toStringAsFixed(0)}%',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 8.sp,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return GestureDetector(
+          onTap: () {
+            final repo = ctx.read<IptvRepository>();
+            final url = repo.buildSeriesStreamUrl(epId, episode.containerExtension);
+            cubit.startDownload(
+              contentId: epId,
+              name: '${series.name} - ${episode.title}',
+              image: series.cover,
+              type: 'series',
+              url: url,
+              extension: episode.containerExtension,
+            );
+          },
+          child: Container(
+            width: 34.w,
+            height: 34.w,
+            decoration: BoxDecoration(
+              color: AppColors.error.withOpacity(0.15),
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColors.error.withOpacity(0.3)),
+            ),
+            child: Center(
+              child: SDGAIcon(SDGAIconsStroke.reload, color: AppColors.error, size: 12.sp),
+            ),
+          ),
+        );
+      },
     );
   }
 }

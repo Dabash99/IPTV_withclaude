@@ -16,7 +16,9 @@ import 'favorites_screen.dart';
 import 'live_tv_screen.dart';
 import 'login_screen.dart';
 import 'movies_screen.dart';
+import 'search_screen.dart';
 import 'series_screen.dart';
+import 'statistics_screen.dart';
 
 /// Controller exposed so any descendant screen can switch the bottom nav tab.
 class HomeTabController extends InheritedWidget {
@@ -311,6 +313,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       MaterialPageRoute(
                         builder: (_) => const DownloadsScreen(),
                       ),
+                    ),
+                  ),
+                  SizedBox(height: 10.h),
+
+                  // Statistics
+                  _ProfileTile(
+                    icon: SDGAIconsBulk.informationCircle,
+                    label: 'My Statistics',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const StatisticsScreen()),
+                    ),
+                  ),
+                  SizedBox(height: 10.h),
+
+                  // Unified Search
+                  _ProfileTile(
+                    icon: SDGAIconsStroke.search02,
+                    label: 'Search',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const SearchScreen()),
                     ),
                   ),
                   SizedBox(height: 10.h),
