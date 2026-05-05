@@ -1,5 +1,4 @@
 ﻿import 'package:cached_network_image/cached_network_image.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -57,7 +56,7 @@ class DownloadsScreen extends StatelessWidget {
                 children: [
                   RichText(
                     text: TextSpan(
-                      style: TextStyle(fontSize: 15.sp, letterSpacing: 1, fontFamily: GoogleFonts.ibmPlexSansArabic().fontFamily),
+                      style: TextStyle(fontSize: 15.sp, letterSpacing: 1, fontFamily: 'IBMPlexSansArabic'),
                       children: [
                         TextSpan(
                           text: '${'downloads.title_prefix'.tr()} ',

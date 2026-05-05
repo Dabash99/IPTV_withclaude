@@ -1,5 +1,4 @@
 ﻿import 'package:cached_network_image/cached_network_image.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -343,7 +342,7 @@ class _SectionTitle extends StatelessWidget {
           style: TextStyle(
             fontSize: 15.sp,
             letterSpacing: 1,
-            fontFamily: GoogleFonts.ibmPlexSansArabic().fontFamily,
+            fontFamily: 'IBMPlexSansArabic',
           ),
           children: [
             TextSpan(
@@ -638,7 +637,7 @@ class _RecommendationsSection extends StatelessWidget {
                   padding: EdgeInsets.symmetric(horizontal: 16.w),
                   child: RichText(
                     text: TextSpan(
-                      style: TextStyle(fontSize: 12.sp, fontFamily: GoogleFonts.ibmPlexSansArabic().fontFamily),
+                      style: TextStyle(fontSize: 12.sp, fontFamily: 'IBMPlexSansArabic'),
                       children: [
                         TextSpan(text: 'dashboard.because_watched'.tr(), style: TextStyle(color: AppColors.textMuted, fontWeight: FontWeight.w400)),
                         TextSpan(text: lastMovie.name, style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w700)),
@@ -713,7 +712,7 @@ class _TrendingSection extends StatelessWidget {
                   padding: EdgeInsets.symmetric(horizontal: 16.w),
                   child: RichText(
                     text: TextSpan(
-                      style: TextStyle(fontSize: 15.sp, letterSpacing: 1, fontFamily: GoogleFonts.ibmPlexSansArabic().fontFamily),
+                      style: TextStyle(fontSize: 15.sp, letterSpacing: 1, fontFamily: 'IBMPlexSansArabic'),
                       children: [
                         TextSpan(text: '${'dashboard.trending'.tr()} ', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w300)),
                         TextSpan(text: topGenre.toUpperCase(), style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w800)),
