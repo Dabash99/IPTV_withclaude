@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import '../errors/failures.dart';
 
@@ -23,15 +24,15 @@ class DioHelper {
       InterceptorsWrapper(
         onRequest: (options, handler) {
           // Log requests in debug mode
-          print('🚀 REQUEST: ${options.uri}');
+          debugPrint('🚀 REQUEST: ${options.uri}');
           return handler.next(options);
         },
         onResponse: (response, handler) {
-          print('✅ RESPONSE: ${response.statusCode}');
+          debugPrint('✅ RESPONSE: ${response.statusCode}');
           return handler.next(response);
         },
         onError: (error, handler) {
-          print('❌ ERROR: ${error.message}');
+          debugPrint('❌ ERROR: ${error.message}');
           return handler.next(error);
         },
       ),

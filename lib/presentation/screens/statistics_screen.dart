@@ -1,4 +1,5 @@
-import 'package:cached_network_image/cached_network_image.dart';
+﻿import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -47,7 +48,7 @@ class StatisticsScreen extends StatelessWidget {
                             ),
                           ),
                           SizedBox(width: 14.w),
-                          Text('My Statistics', style: TextStyle(color: AppColors.textPrimary, fontSize: 20.sp, fontWeight: FontWeight.w700)),
+                          Text('stats.title'.tr(), style: TextStyle(color: AppColors.textPrimary, fontSize: 20.sp, fontWeight: FontWeight.w700)),
                         ],
                       ),
                     ),
@@ -61,14 +62,14 @@ class StatisticsScreen extends StatelessWidget {
                         children: [
                           Expanded(child: _StatCard(
                             iconData: Icons.access_time,
-                            label: 'This Month',
+                            label: 'stats.this_month'.tr(),
                             value: _formatHours(stats.monthlyMinutes),
                             color: AppColors.primary,
                           )),
                           SizedBox(width: 12.w),
                           Expanded(child: _StatCard(
                             iconData: Icons.play_circle_outline,
-                            label: 'All Time',
+                            label: 'stats.all_time'.tr(),
                             value: _formatHours(stats.totalMinutes),
                             color: const Color(0xFF00F2FF),
                           )),
@@ -86,21 +87,21 @@ class StatisticsScreen extends StatelessWidget {
                         children: [
                           Expanded(child: _StatCard(
                             iconData: Icons.video_library_outlined,
-                            label: 'Series',
+                            label: 'stats.series'.tr(),
                             value: '${stats.seriesCount}',
                             color: const Color(0xFF7B61FF),
                           )),
                           SizedBox(width: 12.w),
                           Expanded(child: _StatCard(
                             iconData: Icons.movie_outlined,
-                            label: 'Movies',
+                            label: 'stats.movies'.tr(),
                             value: '${stats.moviesCount}',
                             color: AppColors.success,
                           )),
                           SizedBox(width: 12.w),
                           Expanded(child: _StatCard(
                             iconData: Icons.local_fire_department_outlined,
-                            label: 'Streak',
+                            label: 'stats.streak'.tr(),
                             value: '${stats.streakDays}d',
                             color: AppColors.live,
                           )),
@@ -119,19 +120,19 @@ class StatisticsScreen extends StatelessWidget {
                           padding: EdgeInsets.all(16.w),
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
-                              colors: [AppColors.primary.withOpacity(0.2), AppColors.cardLight],
+                              colors: [AppColors.primary.withValues(alpha: 0.2), AppColors.cardLight],
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
                             ),
                             borderRadius: BorderRadius.circular(16.r),
-                            border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                            border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
                           ),
                           child: Row(
                             children: [
                               Container(
                                 width: 48.w, height: 48.w,
                                 decoration: BoxDecoration(
-                                  color: AppColors.primary.withOpacity(0.2),
+                                  color: AppColors.primary.withValues(alpha: 0.2),
                                   shape: BoxShape.circle,
                                 ),
                                 child: Center(child: Text('🎭', style: TextStyle(fontSize: 22.sp))),
@@ -140,7 +141,7 @@ class StatisticsScreen extends StatelessWidget {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('Your Top Genre', style: TextStyle(color: AppColors.textMuted, fontSize: 11.sp)),
+                                  Text('stats.top_genre'.tr(), style: TextStyle(color: AppColors.textMuted, fontSize: 11.sp)),
                                   SizedBox(height: 4.h),
                                   Text(stats.topGenre!, style: TextStyle(color: Colors.white, fontSize: 18.sp, fontWeight: FontWeight.w800)),
                                 ],
@@ -157,7 +158,7 @@ class StatisticsScreen extends StatelessWidget {
                     SliverToBoxAdapter(
                       child: Padding(
                         padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 12.h),
-                        child: _SectionHeader(prefix: 'RECENTLY', suffix: 'WATCHED'),
+                        child: _SectionHeader(prefix: 'stats.recent_prefix'.tr(), suffix: 'stats.recent_suffix'.tr()),
                       ),
                     ),
                     SliverList(
@@ -293,7 +294,7 @@ class _StatCard extends StatelessWidget {
         children: [
           Container(
             width: 34.w, height: 34.w,
-            decoration: BoxDecoration(color: color.withOpacity(0.15), shape: BoxShape.circle),
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.15), shape: BoxShape.circle),
             child: Center(child: Icon(iconData, color: color, size: 16.sp)),
           ),
           SizedBox(height: 10.h),
@@ -349,7 +350,7 @@ class _HistoryTile extends StatelessWidget {
                   : CachedNetworkImage(
                 imageUrl: item.image,
                 width: 52.w, height: 52.w, fit: BoxFit.cover,
-                errorWidget: (_, __, ___) => Container(width: 52.w, height: 52.w, color: AppColors.cardLight),
+                errorWidget: (_, _, _) => Container(width: 52.w, height: 52.w, color: AppColors.cardLight),
               ),
             ),
             SizedBox(width: 12.w),
@@ -381,7 +382,7 @@ class _HistoryTile extends StatelessWidget {
                 borderRadius: BorderRadius.circular(6.r),
               ),
               child: Text(
-                item.type == 'movie' ? 'Movie' : 'Series',
+                item.type == 'movie' ? 'stats.type_movie'.tr() : 'stats.type_series'.tr(),
                 style: TextStyle(color: AppColors.textMuted, fontSize: 10.sp),
               ),
             ),

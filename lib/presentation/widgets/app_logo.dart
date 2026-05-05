@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 // import '../../core/constants/app_colors.dart'; // قم بإلغاء التعليق إذا كنت بحاجة إليه
 
@@ -33,7 +33,7 @@ class AppLogo extends StatelessWidget {
             'iptv player',
             style: TextStyle(
               fontSize: (size / 4).sp,
-              color: color.withOpacity(0.85),
+              color: color.withValues(alpha: 0.85),
               letterSpacing: 2,
               fontWeight: FontWeight.w300,
             ),
@@ -75,7 +75,7 @@ class AppLogoHorizontal extends StatelessWidget {
             'iptv player',
             style: TextStyle(
               fontSize: 10.sp,
-              color: color.withOpacity(0.75),
+              color: color.withValues(alpha: 0.75),
               letterSpacing: 1.2,
               fontWeight: FontWeight.w400,
             ),

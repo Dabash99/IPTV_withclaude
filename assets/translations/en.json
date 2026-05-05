@@ -1,0 +1,166 @@
+{
+  "common": {
+    "all": "All",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "clear": "Clear",
+    "play": "Play",
+    "resume": "Resume",
+    "retry": "Retry",
+    "live": "Live",
+    "movie": "Movie",
+    "series": "Series",
+    "cast": "Cast",
+    "plot": "Plot",
+    "rating": "Rating",
+    "release_date": "Release Date",
+    "director": "Director",
+    "show_less": " show less",
+    "more": "more",
+    "download_started": "Download started",
+    "no_hls_download": "Cannot download HLS streams"
+  },
+  "login": {
+    "title1": "Log in to Your",
+    "title2": "Account",
+    "subtitle": "with this application, you can watch your\nbroadcasts using the link you receive ip tv\nservice",
+    "server_hint": "http://example.com:8080",
+    "server_required": "Enter server URL",
+    "username_hint": "Enter Your Username",
+    "username_required": "Enter username",
+    "password_hint": "Enter Your Password",
+    "password_required": "Enter password",
+    "btn": "Login",
+    "version": "Version 1.2.1"
+  },
+  "settings": {
+    "title": "Settings",
+    "logout": "Logout",
+    "logout_msg": "Are you sure you want to logout?",
+    "profile": "Profile",
+    "downloads": "Downloads",
+    "statistics": "My Statistics",
+    "search": "Search",
+    "clear_history": "Delete Recently Watched",
+    "clear_history_msg": "This will clear all your watch history. Continue?",
+    "history_cleared": "Watch history cleared",
+    "about": "About",
+    "days_remaining": "Days Remaining"
+  },
+  "dashboard": {
+    "keep": "KEEP",
+    "watching": "WATCHING",
+    "new_prefix": "NEW",
+    "movies": "MOVIES",
+    "series": "SERIES",
+    "no_movies": "No movies available",
+    "filter_new": "New",
+    "filter_recently": "Recently",
+    "because_watched": "Because you watched ",
+    "trending": "TRENDING"
+  },
+  "live": {
+    "title_prefix": "LIVE",
+    "title_suffix": "CHANNELS",
+    "badge": "LIVE",
+    "search_hint": "Search channels...",
+    "no_channels": "No channels found",
+    "no_channels_sub": "Try a different category or search"
+  },
+  "movies": {
+    "title_prefix": "ALL",
+    "title_suffix": "MOVIES",
+    "search_hint": "Search movies...",
+    "no_movies": "No movies found",
+    "detail_title": "Movie"
+  },
+  "series": {
+    "title_prefix": "ALL",
+    "title_suffix": "SERIES",
+    "search_hint": "Search series...",
+    "no_series": "No series found",
+    "detail_title": "Series",
+    "season": "Season {num}"
+  },
+  "favorites": {
+    "title_prefix": "MY",
+    "title_suffix": "FAVORITES",
+    "channels": "Channels",
+    "movies": "Movies",
+    "series": "Series",
+    "no_channels": "No favorite channels yet",
+    "no_channels_sub": "Tap the heart icon next to any channel",
+    "no_movies": "No favorite movies yet",
+    "no_series": "No favorite series yet",
+    "tap_heart": "Tap ❤️ on the details page"
+  },
+  "search": {
+    "hint": "Search movies, series, channels...",
+    "live": "Live",
+    "movies": "Movies",
+    "series": "Series",
+    "no_live": "No live channels found",
+    "no_movies": "No movies found",
+    "no_series": "No series found",
+    "genre": "Genre",
+    "year": "Year",
+    "rating": "Rating",
+    "min_rating": "Minimum Rating"
+  },
+  "stats": {
+    "title": "My Statistics",
+    "this_month": "This Month",
+    "all_time": "All Time",
+    "series": "Series",
+    "movies": "Movies",
+    "streak": "Streak",
+    "top_genre": "Your Top Genre",
+    "recent_prefix": "RECENTLY",
+    "recent_suffix": "WATCHED",
+    "type_movie": "Movie",
+    "type_series": "Series"
+  },
+  "downloads": {
+    "title_prefix": "MY",
+    "title_suffix": "DOWNLOADS",
+    "empty": "No downloads yet",
+    "empty_sub": "Tap the download icon on any movie to save it",
+    "delete_title": "Delete Download",
+    "delete_msg": "Remove \"{name}\" from your device?",
+    "status_done": "Done",
+    "status_downloading": "Downloading",
+    "status_failed": "Failed",
+    "status_paused": "Paused",
+    "status_queued": "Queued"
+  },
+  "drawer": {
+    "categories": "CATEGORIES",
+    "dashboard": "Dashboard",
+    "live_tv": "Live TV",
+    "movies": "Movies",
+    "series": "Series",
+    "favorites": "Favorites",
+    "settings": "Settings",
+    "version": "Version 1.0.0"
+  },
+  "epg": {
+    "title": "Programme Guide",
+    "no_info": "No EPG information available",
+    "now": "Now"
+  },
+  "player": {
+    "error_playback": "Playback failed",
+    "error_generic": "Playback error: {msg}",
+    "error_failed": "Failed to play content. Check your server URL."
+  },
+  "about": {
+    "version": "Version {n}",
+    "developer": "DEVELOPER",
+    "name_label": "Name",
+    "phone_label": "Phone",
+    "email_label": "Email",
+    "built_with": "Built with Flutter ❤️",
+    "phone_copied": "Phone copied",
+    "email_copied": "Email copied"
+  }
+}

@@ -1,0 +1,166 @@
+{
+  "common": {
+    "all": "الكل",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "clear": "مسح",
+    "play": "تشغيل",
+    "resume": "استكمال",
+    "retry": "إعادة المحاولة",
+    "live": "مباشر",
+    "movie": "فيلم",
+    "series": "مسلسل",
+    "cast": "طاقم التمثيل",
+    "plot": "القصة",
+    "rating": "التقييم",
+    "release_date": "تاريخ الإصدار",
+    "director": "المخرج",
+    "show_less": " عرض أقل",
+    "more": "المزيد",
+    "download_started": "بدأ التنزيل",
+    "no_hls_download": "لا يمكن تنزيل بث HLS"
+  },
+  "login": {
+    "title1": "تسجيل الدخول إلى",
+    "title2": "حسابك",
+    "subtitle": "من خلال هذا التطبيق يمكنك مشاهدة\nبثوثك المفضلة باستخدام الرابط الذي تلقيته\nمن خدمة IPTV",
+    "server_hint": "http://example.com:8080",
+    "server_required": "أدخل رابط السيرفر",
+    "username_hint": "أدخل اسم المستخدم",
+    "username_required": "أدخل اسم المستخدم",
+    "password_hint": "أدخل كلمة المرور",
+    "password_required": "أدخل كلمة المرور",
+    "btn": "تسجيل الدخول",
+    "version": "الإصدار 1.2.1"
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "logout": "تسجيل الخروج",
+    "logout_msg": "هل أنت متأكد أنك تريد تسجيل الخروج؟",
+    "profile": "الملف الشخصي",
+    "downloads": "التنزيلات",
+    "statistics": "إحصائياتي",
+    "search": "بحث",
+    "clear_history": "حذف المشاهدات الأخيرة",
+    "clear_history_msg": "سيؤدي هذا إلى مسح سجل المشاهدة بالكامل. هل تريد المتابعة؟",
+    "history_cleared": "تم مسح سجل المشاهدة",
+    "about": "حول التطبيق",
+    "days_remaining": "أيام متبقية"
+  },
+  "dashboard": {
+    "keep": "متابعة",
+    "watching": "المشاهدة",
+    "new_prefix": "أحدث",
+    "movies": "الأفلام",
+    "series": "المسلسلات",
+    "no_movies": "لا توجد أفلام متاحة",
+    "filter_new": "جديد",
+    "filter_recently": "الأخيرة",
+    "because_watched": "لأنك شاهدت ",
+    "trending": "رائج"
+  },
+  "live": {
+    "title_prefix": "البث",
+    "title_suffix": "المباشر",
+    "badge": "مباشر",
+    "search_hint": "ابحث عن القنوات...",
+    "no_channels": "لا توجد قنوات",
+    "no_channels_sub": "جرب تصنيفاً مختلفاً أو ابحث"
+  },
+  "movies": {
+    "title_prefix": "كل",
+    "title_suffix": "الأفلام",
+    "search_hint": "ابحث عن الأفلام...",
+    "no_movies": "لا توجد أفلام",
+    "detail_title": "فيلم"
+  },
+  "series": {
+    "title_prefix": "كل",
+    "title_suffix": "المسلسلات",
+    "search_hint": "ابحث عن المسلسلات...",
+    "no_series": "لا توجد مسلسلات",
+    "detail_title": "مسلسل",
+    "season": "الموسم {num}"
+  },
+  "favorites": {
+    "title_prefix": "قائمتي",
+    "title_suffix": "المفضلة",
+    "channels": "القنوات",
+    "movies": "الأفلام",
+    "series": "المسلسلات",
+    "no_channels": "لا توجد قنوات مفضلة",
+    "no_channels_sub": "اضغط على أيقونة القلب بجانب أي قناة",
+    "no_movies": "لا توجد أفلام مفضلة",
+    "no_series": "لا توجد مسلسلات مفضلة",
+    "tap_heart": "اضغط ❤️ في صفحة التفاصيل"
+  },
+  "search": {
+    "hint": "ابحث عن أفلام ومسلسلات وقنوات...",
+    "live": "مباشر",
+    "movies": "أفلام",
+    "series": "مسلسلات",
+    "no_live": "لا توجد قنوات مباشرة",
+    "no_movies": "لا توجد أفلام",
+    "no_series": "لا توجد مسلسلات",
+    "genre": "النوع",
+    "year": "السنة",
+    "rating": "التقييم",
+    "min_rating": "الحد الأدنى للتقييم"
+  },
+  "stats": {
+    "title": "إحصائياتي",
+    "this_month": "هذا الشهر",
+    "all_time": "الكل",
+    "series": "مسلسلات",
+    "movies": "أفلام",
+    "streak": "متتالية",
+    "top_genre": "نوعك المفضل",
+    "recent_prefix": "شوهدت",
+    "recent_suffix": "مؤخراً",
+    "type_movie": "فيلم",
+    "type_series": "مسلسل"
+  },
+  "downloads": {
+    "title_prefix": "قائمتي",
+    "title_suffix": "التنزيلات",
+    "empty": "لا توجد تنزيلات",
+    "empty_sub": "اضغط على أيقونة التنزيل في أي فيلم لحفظه",
+    "delete_title": "حذف التنزيل",
+    "delete_msg": "هل تريد إزالة \"{name}\" من جهازك؟",
+    "status_done": "تم",
+    "status_downloading": "جارٍ التنزيل",
+    "status_failed": "فشل",
+    "status_paused": "متوقف مؤقتاً",
+    "status_queued": "في الانتظار"
+  },
+  "drawer": {
+    "categories": "الأقسام",
+    "dashboard": "الرئيسية",
+    "live_tv": "البث المباشر",
+    "movies": "الأفلام",
+    "series": "المسلسلات",
+    "favorites": "المفضلة",
+    "settings": "الإعدادات",
+    "version": "الإصدار 1.0.0"
+  },
+  "epg": {
+    "title": "جدول البرامج",
+    "no_info": "لا توجد معلومات EPG متاحة",
+    "now": "الآن"
+  },
+  "player": {
+    "error_playback": "فشل التشغيل",
+    "error_generic": "خطأ في التشغيل: {msg}",
+    "error_failed": "فشل تشغيل المحتوى. تأكد من رابط السيرفر."
+  },
+  "about": {
+    "version": "الإصدار {n}",
+    "developer": "المطوّر",
+    "name_label": "الاسم",
+    "phone_label": "الهاتف",
+    "email_label": "البريد الإلكتروني",
+    "built_with": "مبني بـ Flutter ❤️",
+    "phone_copied": "تم نسخ رقم الهاتف",
+    "email_copied": "تم نسخ البريد الإلكتروني"
+  }
+}

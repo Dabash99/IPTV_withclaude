@@ -1,3 +1,4 @@
+﻿import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -29,7 +30,7 @@ class AboutSheet extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
-        border: Border.all(color: AppColors.border.withOpacity(0.5)),
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
       ),
       padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 28.h),
       child: Column(
@@ -56,12 +57,12 @@ class AboutSheet extends StatelessWidget {
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 3.h),
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.15),
+                color: AppColors.primary.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(100.r),
-                border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
               ),
               child: Text(
-                'Version $_appVersion',
+                'about.version'.tr(namedArgs: {'n': _appVersion}),
                 style: TextStyle(
                   color: AppColors.primary,
                   fontSize: 11.sp,
@@ -75,7 +76,7 @@ class AboutSheet extends StatelessWidget {
 
           // Developer section
           Text(
-            'DEVELOPER',
+            'about.developer'.tr(),
             style: TextStyle(
               color: AppColors.textMuted,
               fontSize: 11.sp,
@@ -87,29 +88,29 @@ class AboutSheet extends StatelessWidget {
 
           _InfoRow(
             icon: SDGAIconsBulk.user,
-            label: 'Name',
+            label: 'about.name_label'.tr(),
             value: _developerName,
           ),
           SizedBox(height: 10.h),
           _InfoRow(
             icon: SDGAIconsBulk.call,
-            label: 'Phone',
+            label: 'about.phone_label'.tr(),
             value: _developerPhone,
-            onCopy: () => _copy(context, _developerPhone, 'Phone copied'),
+            onCopy: () => _copy(context, _developerPhone, 'about.phone_copied'.tr()),
           ),
           SizedBox(height: 10.h),
           _InfoRow(
             icon: SDGAIconsBulk.mail01,
-            label: 'Email',
+            label: 'about.email_label'.tr(),
             value: _developerEmail,
-            onCopy: () => _copy(context, _developerEmail, 'Email copied'),
+            onCopy: () => _copy(context, _developerEmail, 'about.email_copied'.tr()),
           ),
           SizedBox(height: 24.h),
 
           // Credit
           Center(
             child: Text(
-              'Built with Flutter ❤️',
+              'about.built_with'.tr(),
               style: TextStyle(
                 color: AppColors.textMuted,
                 fontSize: 11.sp,
@@ -155,7 +156,7 @@ class _InfoRow extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.cardLight,
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: AppColors.border.withOpacity(0.5)),
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
       ),
       child: Row(
         children: [
@@ -163,7 +164,7 @@ class _InfoRow extends StatelessWidget {
             width: 36.w,
             height: 36.w,
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.15),
+              color: AppColors.primary.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(10.r),
             ),
             child: Center(

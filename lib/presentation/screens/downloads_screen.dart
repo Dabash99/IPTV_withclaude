@@ -1,4 +1,5 @@
-import 'package:cached_network_image/cached_network_image.dart';
+﻿import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -58,14 +59,14 @@ class DownloadsScreen extends StatelessWidget {
                       style: TextStyle(fontSize: 15.sp, letterSpacing: 1, fontFamily: 'Cairo'),
                       children: [
                         TextSpan(
-                          text: 'MY ',
+                          text: '${'downloads.title_prefix'.tr()} ',
                           style: TextStyle(
                             color: AppColors.textPrimary,
                             fontWeight: FontWeight.w300,
                           ),
                         ),
                         TextSpan(
-                          text: 'DOWNLOADS',
+                          text: 'downloads.title_suffix'.tr(),
                           style: TextStyle(
                             color: AppColors.textPrimary,
                             fontWeight: FontWeight.w800,
@@ -88,16 +89,16 @@ class DownloadsScreen extends StatelessWidget {
               child: BlocBuilder<DownloadsCubit, DownloadsState>(
                 builder: (context, state) {
                   if (state.items.isEmpty) {
-                    return const EmptyStateWidget(
+                    return EmptyStateWidget(
                       icon: SDGAIconsBulk.download04,
-                      message: 'No downloads yet',
-                      subtitle: 'Tap the download icon on any movie to save it',
+                      message: 'downloads.empty'.tr(),
+                      subtitle: 'downloads.empty_sub'.tr(),
                     );
                   }
                   return ListView.separated(
                     padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 24.h),
                     itemCount: state.items.length,
-                    separatorBuilder: (_, __) => SizedBox(height: 10.h),
+                    separatorBuilder: (_, _) => SizedBox(height: 10.h),
                     itemBuilder: (_, i) => _DownloadTile(item: state.items[i]),
                   );
                 },
@@ -147,9 +148,9 @@ class _DownloadTile extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(12.w),
         decoration: BoxDecoration(
-          color: AppColors.surface.withOpacity(0.6),
+          color: AppColors.surface.withValues(alpha: 0.6),
           borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(color: AppColors.border.withOpacity(0.5)),
+          border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
         ),
         child: Row(
           children: [
@@ -173,7 +174,7 @@ class _DownloadTile extends StatelessWidget {
                     : CachedNetworkImage(
                   imageUrl: item.image,
                   fit: BoxFit.cover,
-                  errorWidget: (_, __, ___) => Container(color: AppColors.cardLight),
+                  errorWidget: (_, _, _) => Container(color: AppColors.cardLight),
                 ),
               ),
             ),
@@ -249,29 +250,29 @@ class _StatusBadge extends StatelessWidget {
     switch (status) {
       case DownloadStatus.completed:
         color = AppColors.success;
-        label = 'Done';
+        label = 'downloads.status_done'.tr();
         break;
       case DownloadStatus.downloading:
         color = AppColors.primary;
-        label = 'Downloading';
+        label = 'downloads.status_downloading'.tr();
         break;
       case DownloadStatus.failed:
         color = AppColors.error;
-        label = 'Failed';
+        label = 'downloads.status_failed'.tr();
         break;
       case DownloadStatus.paused:
         color = AppColors.warning;
-        label = 'Paused';
+        label = 'downloads.status_paused'.tr();
         break;
       case DownloadStatus.queued:
         color = AppColors.textMuted;
-        label = 'Queued';
+        label = 'downloads.status_queued'.tr();
         break;
     }
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(4.r),
       ),
       child: Text(
@@ -296,7 +297,7 @@ class _ActionButton extends StatelessWidget {
           width: 36.w,
           height: 36.w,
           decoration: BoxDecoration(
-            color: AppColors.error.withOpacity(0.15),
+            color: AppColors.error.withValues(alpha: 0.15),
             shape: BoxShape.circle,
           ),
           child: Center(
@@ -336,7 +337,7 @@ class _ActionButton extends StatelessWidget {
         backgroundColor: AppColors.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.r)),
         title: Text(
-          'Delete Download',
+          'downloads.delete_title'.tr(),
           style: TextStyle(
             color: AppColors.textPrimary,
             fontSize: 16.sp,
@@ -344,14 +345,14 @@ class _ActionButton extends StatelessWidget {
           ),
         ),
         content: Text(
-          'Remove "${item.name}" from your device?',
+          'downloads.delete_msg'.tr(namedArgs: {'name': item.name}),
           style: TextStyle(color: AppColors.textSecondary, fontSize: 14.sp),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
-              'Cancel',
+              'common.cancel'.tr(),
               style: TextStyle(color: AppColors.textSecondary, fontSize: 14.sp),
             ),
           ),
@@ -366,7 +367,7 @@ class _ActionButton extends StatelessWidget {
               Navigator.pop(context);
             },
             child: Text(
-              'Delete',
+              'common.delete'.tr(),
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 13.sp,

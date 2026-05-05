@@ -1,4 +1,5 @@
-import 'package:cached_network_image/cached_network_image.dart';
+﻿import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -41,7 +42,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                   : CachedNetworkImage(
                 imageUrl: m.streamIcon,
                 fit: BoxFit.cover,
-                errorWidget: (_, __, ___) => Container(color: AppColors.cardLight),
+                errorWidget: (_, _, _) => Container(color: AppColors.cardLight),
               ),
             ),
           ),
@@ -53,8 +54,8 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    AppColors.background.withOpacity(0.5),
-                    AppColors.background.withOpacity(0.9),
+                    AppColors.background.withValues(alpha: 0.5),
+                    AppColors.background.withValues(alpha: 0.9),
                     AppColors.background,
                   ],
                   stops: const [0.0, 0.4, 1.0],
@@ -78,7 +79,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                         ),
                         const Spacer(),
                         Text(
-                          'Movie',
+                          'movies.detail_title'.tr(),
                           style: TextStyle(
                             color: AppColors.textPrimary,
                             fontSize: 16.sp,
@@ -111,7 +112,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                                 );
                                 ScaffoldMessenger.of(ctx).showSnackBar(
                                   SnackBar(
-                                    content: const Text('Download started'),
+                                    content: Text('common.download_started'.tr()),
                                     backgroundColor: AppColors.primary,
                                     behavior: SnackBarBehavior.floating,
                                     duration: const Duration(seconds: 2),
@@ -166,7 +167,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                             borderRadius: BorderRadius.circular(14.r),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.5),
+                                color: Colors.black.withValues(alpha: 0.5),
                                 blurRadius: 20,
                                 offset: const Offset(0, 8),
                               ),
@@ -188,7 +189,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                                 : CachedNetworkImage(
                               imageUrl: m.streamIcon,
                               fit: BoxFit.cover,
-                              errorWidget: (_, __, ___) =>
+                              errorWidget: (_, _, _) =>
                                   Container(color: AppColors.cardLight),
                             ),
                           ),
@@ -244,7 +245,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                                     final hasResume = existing.id != 0 &&
                                         (existing.progressSeconds ?? 0) > 30;
                                     return _PlayButton(
-                                      label: hasResume ? 'Resume' : 'Play',
+                                      label: hasResume ? 'common.resume'.tr() : 'common.play'.tr(),
                                       onTap: () {
                                         final repo = ctx.read<IptvRepository>();
                                         // Try to play from local file if downloaded
@@ -297,21 +298,21 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                         if (m.releaseDate?.isNotEmpty == true)
                           Expanded(
                             child: _MetaColumn(
-                              label: 'Release Date',
+                              label: 'common.release_date'.tr(),
                               value: m.releaseDate!,
                             ),
                           ),
                         if (m.director?.isNotEmpty == true)
                           Expanded(
                             child: _MetaColumn(
-                              label: 'Director',
+                              label: 'common.director'.tr(),
                               value: m.director!,
                             ),
                           ),
                         if (m.rating > 0)
                           Expanded(
                             child: _MetaColumn(
-                              label: 'Rating',
+                              label: 'common.rating'.tr(),
                               value: '⭐ ${m.rating.toStringAsFixed(1)}',
                             ),
                           ),
@@ -330,7 +331,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16.w),
                       child: Text(
-                        'Cast',
+                        'common.cast'.tr(),
                         style: TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 12.sp,
@@ -361,7 +362,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16.w),
                       child: Text(
-                        'Plot',
+                        'common.plot'.tr(),
                         style: TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 12.sp,
@@ -392,7 +393,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                               ),
                               if (m.plot!.length > 180)
                                 TextSpan(
-                                  text: _plotExpanded ? ' show less' : 'more',
+                                  text: _plotExpanded ? 'common.show_less'.tr() : 'common.more'.tr(),
                                   style: TextStyle(
                                     color: AppColors.primary,
                                     fontWeight: FontWeight.w700,
@@ -434,9 +435,9 @@ class _CircleBtn extends StatelessWidget {
         width: 40.w,
         height: 40.w,
         decoration: BoxDecoration(
-          color: AppColors.surface.withOpacity(0.7),
+          color: AppColors.surface.withValues(alpha: 0.7),
           shape: BoxShape.circle,
-          border: Border.all(color: AppColors.border.withOpacity(0.5)),
+          border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
         ),
         child: Center(
           child: SDGAIcon(icon, color: color, size: 18.sp),
@@ -511,14 +512,14 @@ class _DownloadButton extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!isDownloadable) {
       return Tooltip(
-        message: 'Cannot download HLS streams',
+        message: 'common.no_hls_download'.tr(),
         child: Container(
           width: 40.w,
           height: 40.w,
           decoration: BoxDecoration(
-            color: AppColors.surface.withOpacity(0.5),
+            color: AppColors.surface.withValues(alpha: 0.5),
             shape: BoxShape.circle,
-            border: Border.all(color: AppColors.border.withOpacity(0.3)),
+            border: Border.all(color: AppColors.border.withValues(alpha: 0.3)),
           ),
           child: Center(
             child: SDGAIcon(
@@ -537,9 +538,9 @@ class _DownloadButton extends StatelessWidget {
           width: 40.w,
           height: 40.w,
           decoration: BoxDecoration(
-            color: AppColors.surface.withOpacity(0.7),
+            color: AppColors.surface.withValues(alpha: 0.7),
             shape: BoxShape.circle,
-            border: Border.all(color: AppColors.border.withOpacity(0.5)),
+            border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
           ),
           child: Center(
             child: SDGAIcon(
@@ -558,9 +559,9 @@ class _DownloadButton extends StatelessWidget {
           width: 40.w,
           height: 40.w,
           decoration: BoxDecoration(
-            color: AppColors.success.withOpacity(0.2),
+            color: AppColors.success.withValues(alpha: 0.2),
             shape: BoxShape.circle,
-            border: Border.all(color: AppColors.success.withOpacity(0.4)),
+            border: Border.all(color: AppColors.success.withValues(alpha: 0.4)),
           ),
           child: Center(
             child: SDGAIcon(
@@ -577,7 +578,7 @@ class _DownloadButton extends StatelessWidget {
         width: 40.w,
         height: 40.w,
         decoration: BoxDecoration(
-          color: AppColors.primary.withOpacity(0.2),
+          color: AppColors.primary.withValues(alpha: 0.2),
           shape: BoxShape.circle,
         ),
         child: Stack(
@@ -594,7 +595,7 @@ class _DownloadButton extends StatelessWidget {
               ),
             ),
             Text(
-              '${(item!.progress * 100).toStringAsFixed(0)}',
+              (item!.progress * 100).toStringAsFixed(0),
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 9.sp,
@@ -612,9 +613,9 @@ class _DownloadButton extends StatelessWidget {
         width: 40.w,
         height: 40.w,
         decoration: BoxDecoration(
-          color: AppColors.error.withOpacity(0.15),
+          color: AppColors.error.withValues(alpha: 0.15),
           shape: BoxShape.circle,
-          border: Border.all(color: AppColors.error.withOpacity(0.3)),
+          border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
         ),
         child: Center(
           child: SDGAIcon(

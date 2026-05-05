@@ -1,5 +1,6 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'package:better_player_plus/better_player_plus.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -137,7 +138,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             liveTextColor: AppColors.live,
           ),
           errorBuilder: (context, errorMessage) =>
-              _buildError(errorMessage ?? 'فشل التشغيل'),
+              _buildError(errorMessage ?? 'player.error_playback'.tr()),
           eventListener: _onPlayerEvent,
         ),
         betterPlayerDataSource: dataSource,
@@ -151,13 +152,13 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
       setState(() => _initialized = true);
     } catch (e) {
-      setState(() => _error = 'خطأ في التشغيل: $e');
+      setState(() => _error = 'player.error_generic'.tr(namedArgs: {'msg': '$e'}));
     }
   }
 
   void _onPlayerEvent(BetterPlayerEvent event) {
     if (event.betterPlayerEventType == BetterPlayerEventType.exception) {
-      if (mounted) setState(() => _error = 'فشل تشغيل المحتوى. تأكد من رابط السيرفر.');
+      if (mounted) setState(() => _error = 'player.error_failed'.tr());
     }
     if (event.betterPlayerEventType == BetterPlayerEventType.pause ||
         event.betterPlayerEventType == BetterPlayerEventType.finished) {
@@ -454,9 +455,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.85),
+          color: Colors.black.withValues(alpha: 0.85),
           borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(color: AppColors.border.withOpacity(0.4)),
+          border: Border.all(color: AppColors.border.withValues(alpha: 0.4)),
         ),
         child: Row(
           children: [
@@ -561,7 +562,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
               Container(
                 width: 80.w, height: 80.w,
                 decoration: BoxDecoration(
-                  color: AppColors.error.withOpacity(0.15),
+                  color: AppColors.error.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
                 child: Center(child: SDGAIcon(SDGAIconsBulk.alert02, color: AppColors.error, size: 40.sp)),

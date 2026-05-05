@@ -56,6 +56,9 @@ dependencies:
   shimmer: ^3.0.0
   sdga_icons: ^0.0.2
 
+  # Localization
+  easy_localization: ^3.0.7
+
   # Gesture controls (brightness + volume)
   screen_brightness: ^0.2.2+1
   volume_controller: ^2.0.7
@@ -93,6 +96,7 @@ flutter:
   #   - images/a_dot_ham.jpeg
   assets:
     - assets/images/
+    - assets/translations/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

@@ -1,3 +1,4 @@
+﻿import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -69,9 +70,9 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                     decoration: BoxDecoration(
-                      color: AppColors.live.withOpacity(0.15),
+                      color: AppColors.live.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(100.r),
-                      border: Border.all(color: AppColors.live.withOpacity(0.3)),
+                      border: Border.all(color: AppColors.live.withValues(alpha: 0.3)),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -86,7 +87,7 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                         ),
                         SizedBox(width: 5.w),
                         Text(
-                          'LIVE',
+                          'live.badge'.tr(),
                           style: TextStyle(
                             color: AppColors.live,
                             fontSize: 10.sp,
@@ -120,7 +121,7 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                 padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 12.h),
                 child: SearchField(
                   controller: _searchController,
-                  hint: 'Search channels...',
+                  hint: 'live.search_hint'.tr(),
                   onChanged: (v) => context.read<LiveCubit>().searchStreams(v),
                 ),
               )
@@ -135,11 +136,11 @@ class _LiveTvScreenState extends State<LiveTvScreen> {
                   style: TextStyle(fontSize: 15.sp, letterSpacing: 1, fontFamily: 'Cairo'),
                   children: [
                     TextSpan(
-                      text: 'LIVE ',
+                      text: '${'live.title_prefix'.tr()} ',
                       style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w300),
                     ),
                     TextSpan(
-                      text: 'CHANNELS',
+                      text: 'live.title_suffix'.tr(),
                       style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w800),
                     ),
                   ],
@@ -188,11 +189,11 @@ class _LiveContent extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.symmetric(horizontal: 16.w),
             itemCount: state.categories.length + 1,
-            separatorBuilder: (_, __) => SizedBox(width: 8.w),
+            separatorBuilder: (_, _) => SizedBox(width: 8.w),
             itemBuilder: (_, i) {
               if (i == 0) {
                 return CategoryChip(
-                  label: 'All',
+                  label: 'common.all'.tr(),
                   selected: state.selectedCategoryId == null,
                   onTap: () => context.read<LiveCubit>().selectCategory(null),
                 );
@@ -209,15 +210,15 @@ class _LiveContent extends StatelessWidget {
         SizedBox(height: 14.h),
         Expanded(
           child: state.filteredStreams.isEmpty
-              ? const EmptyStateWidget(
+              ? EmptyStateWidget(
             icon: SDGAIconsBulk.tv01,
-            message: 'No channels found',
-            subtitle: 'Try a different category or search',
+            message: 'live.no_channels'.tr(),
+            subtitle: 'live.no_channels_sub'.tr(),
           )
               : ListView.separated(
             padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 100.h),
             itemCount: state.filteredStreams.length,
-            separatorBuilder: (_, __) => SizedBox(height: 10.h),
+            separatorBuilder: (_, _) => SizedBox(height: 10.h),
             itemBuilder: (_, i) {
               final stream = state.filteredStreams[i];
               final epg = state.epgCache[stream.streamId];
@@ -311,9 +312,9 @@ class _IconBtn extends StatelessWidget {
         width: 40.w,
         height: 40.w,
         decoration: BoxDecoration(
-          color: AppColors.surface.withOpacity(0.7),
+          color: AppColors.surface.withValues(alpha: 0.7),
           shape: BoxShape.circle,
-          border: Border.all(color: AppColors.border.withOpacity(0.5)),
+          border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
         ),
         child: Center(
           child: SDGAIcon(icon, color: Colors.white, size: 18.sp),

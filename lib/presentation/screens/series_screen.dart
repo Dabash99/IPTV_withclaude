@@ -1,9 +1,11 @@
-import 'package:cached_network_image/cached_network_image.dart';
+﻿import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sdga_icons/sdga_icons.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive.dart';
 import '../../data/datasources/downloads_datasource.dart';
 import '../../data/datasources/favorites_datasource.dart';
 import '../../domain/entities/stream_entities.dart';
@@ -89,7 +91,7 @@ class _SeriesScreenState extends State<SeriesScreen> {
                 padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 12.h),
                 child: SearchField(
                   controller: _searchController,
-                  hint: 'Search series...',
+                  hint: 'series.search_hint'.tr(),
                   onChanged: (v) => context.read<SeriesCubit>().search(v),
                 ),
               )
@@ -102,11 +104,11 @@ class _SeriesScreenState extends State<SeriesScreen> {
                   style: TextStyle(fontSize: 15.sp, letterSpacing: 1, fontFamily: 'Cairo'),
                   children: [
                     TextSpan(
-                      text: 'ALL ',
+                      text: '${'series.title_prefix'.tr()} ',
                       style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w300),
                     ),
                     TextSpan(
-                      text: 'SERIES',
+                      text: 'series.title_suffix'.tr(),
                       style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w800),
                     ),
                   ],
@@ -154,11 +156,11 @@ class _SeriesContent extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.symmetric(horizontal: 16.w),
             itemCount: state.categories.length + 1,
-            separatorBuilder: (_, __) => SizedBox(width: 8.w),
+            separatorBuilder: (_, _) => SizedBox(width: 8.w),
             itemBuilder: (_, i) {
               if (i == 0) {
                 return CategoryChip(
-                  label: 'All',
+                  label: 'common.all'.tr(),
                   selected: state.selectedCategoryId == null,
                   onTap: () => context.read<SeriesCubit>().selectCategory(null),
                 );
@@ -175,14 +177,14 @@ class _SeriesContent extends StatelessWidget {
         SizedBox(height: 14.h),
         Expanded(
           child: state.filteredSeries.isEmpty
-              ? const EmptyStateWidget(
+              ? EmptyStateWidget(
             icon: SDGAIconsBulk.folderLibrary,
-            message: 'No series found',
+            message: 'series.no_series'.tr(),
           )
               : GridView.builder(
             padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 100.h),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
+              crossAxisCount: Responsive.posterGridColumns(context),
               crossAxisSpacing: 12.w,
               mainAxisSpacing: 16.h,
               childAspectRatio: 0.6,
@@ -222,9 +224,9 @@ class _IconBtn extends StatelessWidget {
         width: 40.w,
         height: 40.w,
         decoration: BoxDecoration(
-          color: AppColors.surface.withOpacity(0.7),
+          color: AppColors.surface.withValues(alpha: 0.7),
           shape: BoxShape.circle,
-          border: Border.all(color: AppColors.border.withOpacity(0.5)),
+          border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
         ),
         child: Center(
           child: SDGAIcon(icon, color: Colors.white, size: 18.sp),
@@ -269,7 +271,7 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                     : CachedNetworkImage(
                   imageUrl: s.cover,
                   fit: BoxFit.cover,
-                  errorWidget: (_, __, ___) => Container(color: AppColors.cardLight),
+                  errorWidget: (_, _, _) => Container(color: AppColors.cardLight),
                 ),
               ),
             ),
@@ -280,8 +282,8 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      AppColors.background.withOpacity(0.5),
-                      AppColors.background.withOpacity(0.9),
+                      AppColors.background.withValues(alpha: 0.5),
+                      AppColors.background.withValues(alpha: 0.9),
                       AppColors.background,
                     ],
                     stops: const [0.0, 0.4, 1.0],
@@ -305,7 +307,7 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                           ),
                           const Spacer(),
                           Text(
-                            'Series',
+                            'series.detail_title'.tr(),
                             style: TextStyle(
                               color: AppColors.textPrimary,
                               fontSize: 16.sp,
@@ -349,7 +351,7 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                               borderRadius: BorderRadius.circular(14.r),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.5),
+                                  color: Colors.black.withValues(alpha: 0.5),
                                   blurRadius: 20,
                                   offset: const Offset(0, 8),
                                 ),
@@ -362,7 +364,7 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                                   : CachedNetworkImage(
                                 imageUrl: s.cover,
                                 fit: BoxFit.cover,
-                                errorWidget: (_, __, ___) =>
+                                errorWidget: (_, _, _) =>
                                     Container(color: AppColors.cardLight),
                               ),
                             ),
@@ -409,7 +411,7 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                                     return SizedBox(
                                       width: double.infinity,
                                       child: _PillBtn(
-                                        label: 'Play',
+                                        label: 'common.play'.tr(),
                                         icon: SDGAIconsBulk.play,
                                         primary: true,
                                         onTap: firstEp == null
@@ -451,21 +453,21 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                           if (s.releaseDate.isNotEmpty)
                             Expanded(
                               child: _MetaColumn(
-                                label: 'Release Date',
+                                label: 'common.release_date'.tr(),
                                 value: s.releaseDate,
                               ),
                             ),
                           if (s.director.isNotEmpty)
                             Expanded(
                               child: _MetaColumn(
-                                label: 'Director',
+                                label: 'common.director'.tr(),
                                 value: s.director,
                               ),
                             ),
                           if (s.rating > 0)
                             Expanded(
                               child: _MetaColumn(
-                                label: 'Rating',
+                                label: 'common.rating'.tr(),
                                 value: '⭐ ${s.rating.toStringAsFixed(1)}',
                               ),
                             ),
@@ -484,7 +486,7 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16.w),
                         child: Text(
-                          'Cast',
+                          'common.cast'.tr(),
                           style: TextStyle(
                             color: AppColors.textSecondary,
                             fontSize: 12.sp,
@@ -515,7 +517,7 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16.w),
                         child: Text(
-                          'Plot',
+                          'common.plot'.tr(),
                           style: TextStyle(
                             color: AppColors.textSecondary,
                             fontSize: 12.sp,
@@ -546,7 +548,7 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                                 ),
                                 if (s.plot.length > 180)
                                   TextSpan(
-                                    text: _plotExpanded ? ' show less' : 'more',
+                                    text: _plotExpanded ? 'common.show_less'.tr() : 'common.more'.tr(),
                                     style: TextStyle(
                                       color: AppColors.primary,
                                       fontWeight: FontWeight.w700,
@@ -587,7 +589,7 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                                   scrollDirection: Axis.horizontal,
                                   padding: EdgeInsets.symmetric(horizontal: 16.w),
                                   itemCount: keys.length,
-                                  separatorBuilder: (_, __) => SizedBox(width: 8.w),
+                                  separatorBuilder: (_, _) => SizedBox(width: 8.w),
                                   itemBuilder: (_, i) {
                                     final season = keys[i];
                                     final active = _selectedSeason == season;
@@ -606,11 +608,11 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                                           border: Border.all(
                                             color: active
                                                 ? Colors.transparent
-                                                : AppColors.border.withOpacity(0.5),
+                                                : AppColors.border.withValues(alpha: 0.5),
                                           ),
                                         ),
                                         child: Text(
-                                          'Season $season',
+                                          'series.season'.tr(namedArgs: {'num': '$season'}),
                                           style: TextStyle(
                                             color: active
                                                 ? Colors.white
@@ -673,9 +675,9 @@ class _CircleBtn extends StatelessWidget {
         width: 40.w,
         height: 40.w,
         decoration: BoxDecoration(
-          color: AppColors.surface.withOpacity(0.7),
+          color: AppColors.surface.withValues(alpha: 0.7),
           shape: BoxShape.circle,
-          border: Border.all(color: AppColors.border.withOpacity(0.5)),
+          border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
         ),
         child: Center(
           child: SDGAIcon(icon, color: color, size: 18.sp),
@@ -707,7 +709,7 @@ class _PillBtn extends StatelessWidget {
         onPressed: onTap,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
-          disabledBackgroundColor: AppColors.primary.withOpacity(0.4),
+          disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.4),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(100.r),
           ),
@@ -978,9 +980,9 @@ class _EpDownloadBtn extends StatelessWidget {
               width: 34.w,
               height: 34.w,
               decoration: BoxDecoration(
-                color: AppColors.success.withOpacity(0.2),
+                color: AppColors.success.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
-                border: Border.all(color: AppColors.success.withOpacity(0.4)),
+                border: Border.all(color: AppColors.success.withValues(alpha: 0.4)),
               ),
               child: Center(
                 child: SDGAIcon(SDGAIconsBulk.tick02, color: AppColors.success, size: 14.sp),
@@ -1032,9 +1034,9 @@ class _EpDownloadBtn extends StatelessWidget {
             width: 34.w,
             height: 34.w,
             decoration: BoxDecoration(
-              color: AppColors.error.withOpacity(0.15),
+              color: AppColors.error.withValues(alpha: 0.15),
               shape: BoxShape.circle,
-              border: Border.all(color: AppColors.error.withOpacity(0.3)),
+              border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
             ),
             child: Center(
               child: SDGAIcon(SDGAIconsStroke.reload, color: AppColors.error, size: 12.sp),

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -128,7 +129,7 @@ class AppDrawer extends StatelessWidget {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.w),
               child: Text(
-                'CATEGORIES',
+                'drawer.categories'.tr(),
                 style: TextStyle(
                   color: AppColors.textMuted,
                   fontSize: 11.sp,
@@ -146,7 +147,7 @@ class AppDrawer extends StatelessWidget {
                 children: [
                   _DrawerItem(
                     icon: SDGAIconsBulk.home03,
-                    label: 'Dashboard',
+                    label: 'drawer.dashboard'.tr(),
                     onTap: () {
                       Navigator.pop(context);
                       onNavigate?.call(0);
@@ -154,7 +155,7 @@ class AppDrawer extends StatelessWidget {
                   ),
                   _DrawerItem(
                     icon: SDGAIconsBulk.tv01,
-                    label: 'Live TV',
+                    label: 'drawer.live_tv'.tr(),
                     onTap: () {
                       Navigator.pop(context);
                       onNavigate?.call(1);
@@ -162,7 +163,7 @@ class AppDrawer extends StatelessWidget {
                   ),
                   _DrawerItem(
                     icon: SDGAIconsBulk.video01,
-                    label: 'Movies',
+                    label: 'drawer.movies'.tr(),
                     onTap: () {
                       Navigator.pop(context);
                       onNavigate?.call(2);
@@ -170,7 +171,7 @@ class AppDrawer extends StatelessWidget {
                   ),
                   _DrawerItem(
                     icon: SDGAIconsBulk.folderLibrary,
-                    label: 'Series',
+                    label: 'drawer.series'.tr(),
                     onTap: () {
                       Navigator.pop(context);
                       onNavigate?.call(3);
@@ -178,7 +179,7 @@ class AppDrawer extends StatelessWidget {
                   ),
                   _DrawerItem(
                     icon: SDGAIconsBulk.favourite,
-                    label: 'Favorites',
+                    label: 'drawer.favorites'.tr(),
                     onTap: () {
                       Navigator.pop(context);
                       onNavigate?.call(4);
@@ -192,7 +193,7 @@ class AppDrawer extends StatelessWidget {
                   SizedBox(height: 14.h),
                   _DrawerItem(
                     icon: SDGAIconsBulk.settings02,
-                    label: 'Settings',
+                    label: 'drawer.settings'.tr(),
                     onTap: () {
                       Navigator.pop(context);
                       onNavigate?.call(5);
@@ -207,7 +208,7 @@ class AppDrawer extends StatelessWidget {
               padding: EdgeInsets.all(20.w),
               child: Center(
                 child: Text(
-                  'Version 1.0.0',
+                  'drawer.version'.tr(),
                   style: TextStyle(
                     color: AppColors.textMuted,
                     fontSize: 11.sp,

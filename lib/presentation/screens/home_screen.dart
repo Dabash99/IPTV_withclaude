@@ -1,3 +1,4 @@
+﻿import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -20,7 +21,7 @@ import 'search_screen.dart';
 import 'series_screen.dart';
 import 'statistics_screen.dart';
 
-/// Controller exposed so any descendant screen can switch the bottom nav tab.
+/// Controller exposed so any descendant screen can switch the tab.
 class HomeTabController extends InheritedWidget {
   final void Function(int index) switchTab;
 
@@ -48,13 +49,13 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
   List<Widget> get _screens => const [
-    DashboardScreen(),
-    LiveTvScreen(),
-    MoviesScreen(),
-    SeriesScreen(),
-    FavoritesScreen(),
-    SettingsScreen(),
-  ];
+        DashboardScreen(),
+        LiveTvScreen(),
+        MoviesScreen(),
+        SeriesScreen(),
+        FavoritesScreen(),
+        SettingsScreen(),
+      ];
 
   void switchTab(int index) {
     if (_currentIndex == index) return;
@@ -96,12 +97,12 @@ class _HomeScreenState extends State<HomeScreen> {
         bottomNavigationBar: Container(
           margin: EdgeInsets.fromLTRB(12.w, 0, 12.w, 12.h),
           decoration: BoxDecoration(
-            color: AppColors.surface.withOpacity(0.95),
+            color: AppColors.surface.withValues(alpha: 0.95),
             borderRadius: BorderRadius.circular(100.r),
-            border: Border.all(color: AppColors.border.withOpacity(0.6)),
+            border: Border.all(color: AppColors.border.withValues(alpha: 0.6)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.4),
+                color: Colors.black.withValues(alpha: 0.4),
                 blurRadius: 24,
                 offset: const Offset(0, 8),
               ),
@@ -114,36 +115,12 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _NavItem(
-                    icon: SDGAIconsBulk.home03,
-                    active: _currentIndex == 0,
-                    onTap: () => switchTab(0),
-                  ),
-                  _NavItem(
-                    icon: SDGAIconsBulk.tv01,
-                    active: _currentIndex == 1,
-                    onTap: () => switchTab(1),
-                  ),
-                  _NavItem(
-                    icon: SDGAIconsBulk.video01,
-                    active: _currentIndex == 2,
-                    onTap: () => switchTab(2),
-                  ),
-                  _NavItem(
-                    icon: SDGAIconsBulk.folderLibrary,
-                    active: _currentIndex == 3,
-                    onTap: () => switchTab(3),
-                  ),
-                  _NavItem(
-                    icon: SDGAIconsBulk.favourite,
-                    active: _currentIndex == 4,
-                    onTap: () => switchTab(4),
-                  ),
-                  _NavItem(
-                    icon: SDGAIconsBulk.settings02,
-                    active: _currentIndex == 5,
-                    onTap: () => switchTab(5),
-                  ),
+                  _NavItem(icon: SDGAIconsBulk.home03, active: _currentIndex == 0, onTap: () => switchTab(0)),
+                  _NavItem(icon: SDGAIconsBulk.tv01, active: _currentIndex == 1, onTap: () => switchTab(1)),
+                  _NavItem(icon: SDGAIconsBulk.video01, active: _currentIndex == 2, onTap: () => switchTab(2)),
+                  _NavItem(icon: SDGAIconsBulk.folderLibrary, active: _currentIndex == 3, onTap: () => switchTab(3)),
+                  _NavItem(icon: SDGAIconsBulk.favourite, active: _currentIndex == 4, onTap: () => switchTab(4)),
+                  _NavItem(icon: SDGAIconsBulk.settings02, active: _currentIndex == 5, onTap: () => switchTab(5)),
                 ],
               ),
             ),
@@ -154,16 +131,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
+// ── Bottom nav item ────────────────────────────────────────────────
 class _NavItem extends StatelessWidget {
   final SDGAIconData icon;
   final bool active;
   final VoidCallback onTap;
 
-  const _NavItem({
-    required this.icon,
-    required this.active,
-    required this.onTap,
-  });
+  const _NavItem({required this.icon, required this.active, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -179,12 +153,12 @@ class _NavItem extends StatelessWidget {
           shape: BoxShape.circle,
           boxShadow: active
               ? [
-            BoxShadow(
-              color: AppColors.primary.withOpacity(0.5),
-              blurRadius: 16,
-              offset: const Offset(0, 4),
-            ),
-          ]
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.5),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
               : null,
         ),
         child: Center(
@@ -199,7 +173,7 @@ class _NavItem extends StatelessWidget {
   }
 }
 
-// ============ Settings Screen (public so AppDrawer can use) ============
+// ============ Settings Screen ============
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -208,8 +182,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _gridView = false;
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AuthCubit, AuthState>(
@@ -219,141 +191,107 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return Scaffold(
           backgroundColor: AppColors.background,
           body: SafeArea(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 120.h),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Top bar: back + title + logout
-                  Row(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 680),
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 100.h),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      GestureDetector(
-                        onTap: () {
-                          // Switch back to Dashboard instead of popping
-                          final controller = HomeTabController.of(context);
-                          if (controller != null) {
-                            controller.switchTab(0);
-                          }
-                        },
-                        child: Container(
-                          width: 40.w,
-                          height: 40.w,
-                          decoration: BoxDecoration(
-                            color: AppColors.surface,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: AppColors.border),
-                          ),
-                          child: Center(
-                            child: SDGAIcon(
-                              SDGAIconsStroke.arrowRight02,
-                              color: Colors.white,
-                              size: 18.sp,
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 14.w),
-                      Text(
-                        'Settings',
-                        style: TextStyle(
-                          color: AppColors.textPrimary,
-                          fontSize: 20.sp,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const Spacer(),
-                      GestureDetector(
-                        onTap: () => _confirmLogout(context),
-                        child: Row(
-                          children: [
-                            SDGAIcon(
-                              SDGAIconsStroke.logout03,
-                              color: AppColors.error,
-                              size: 18.sp,
-                            ),
-                            SizedBox(width: 6.w),
-                            Text(
-                              'Logout',
-                              style: TextStyle(
-                                color: AppColors.error,
-                                fontSize: 13.sp,
-                                fontWeight: FontWeight.w600,
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              final controller = HomeTabController.of(context);
+                              if (controller != null) controller.switchTab(0);
+                            },
+                            child: Container(
+                              width: 40.w,
+                              height: 40.w,
+                              decoration: BoxDecoration(
+                                color: AppColors.surface,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: AppColors.border),
+                              ),
+                              child: Center(
+                                child: SDGAIcon(
+                                  SDGAIconsStroke.arrowRight02,
+                                  color: Colors.white,
+                                  size: 18.sp,
+                                ),
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                          SizedBox(width: 14.w),
+                          Text(
+                            'settings.title'.tr(),
+                            style: TextStyle(
+                              color: AppColors.textPrimary,
+                              fontSize: 20.sp,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const Spacer(),
+                          GestureDetector(
+                            onTap: () => _confirmLogout(context),
+                            child: Row(
+                              children: [
+                                SDGAIcon(SDGAIconsStroke.logout03, color: AppColors.error, size: 18.sp),
+                                SizedBox(width: 6.w),
+                                Text(
+                                  'settings.logout'.tr(),
+                                  style: TextStyle(color: AppColors.error, fontSize: 13.sp, fontWeight: FontWeight.w600),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 28.h),
+
+                      _ProfileTile(
+                        icon: SDGAIconsBulk.user,
+                        label: 'settings.profile'.tr(),
+                        onTap: () {
+                          if (creds != null) {
+                            Navigator.push(context, MaterialPageRoute(builder: (_) => _ProfileScreen(creds: creds)));
+                          }
+                        },
+                      ),
+                      SizedBox(height: 10.h),
+                      _ProfileTile(
+                        icon: SDGAIconsBulk.download04,
+                        label: 'settings.downloads'.tr(),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DownloadsScreen())),
+                      ),
+                      SizedBox(height: 10.h),
+                      _ProfileTile(
+                        icon: SDGAIconsBulk.informationCircle,
+                        label: 'settings.statistics'.tr(),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const StatisticsScreen())),
+                      ),
+                      SizedBox(height: 10.h),
+                      _ProfileTile(
+                        icon: SDGAIconsStroke.search02,
+                        label: 'settings.search'.tr(),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SearchScreen())),
+                      ),
+                      SizedBox(height: 10.h),
+                      _ProfileTile(
+                        icon: SDGAIconsBulk.delete02,
+                        label: 'settings.clear_history'.tr(),
+                        onTap: () => _confirmClearHistory(context),
+                      ),
+                      SizedBox(height: 10.h),
+                      _ProfileTile(
+                        icon: SDGAIconsBulk.informationCircle,
+                        label: 'settings.about'.tr(),
+                        onTap: () => AboutSheet.show(context),
                       ),
                     ],
                   ),
-                  SizedBox(height: 28.h),
-
-                  // Profile
-                  _ProfileTile(
-                    icon: SDGAIconsBulk.user,
-                    label: 'Profile',
-                    onTap: () {
-                      if (creds != null) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => _ProfileScreen(creds: creds),
-                          ),
-                        );
-                      }
-                    },
-                  ),
-                  SizedBox(height: 10.h),
-
-                  // Downloads
-                  _ProfileTile(
-                    icon: SDGAIconsBulk.download04,
-                    label: 'Downloads',
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const DownloadsScreen(),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 10.h),
-
-                  // Statistics
-                  _ProfileTile(
-                    icon: SDGAIconsBulk.informationCircle,
-                    label: 'My Statistics',
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const StatisticsScreen()),
-                    ),
-                  ),
-                  SizedBox(height: 10.h),
-
-                  // Unified Search
-                  _ProfileTile(
-                    icon: SDGAIconsStroke.search02,
-                    label: 'Search',
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const SearchScreen()),
-                    ),
-                  ),
-                  SizedBox(height: 10.h),
-
-                  // Delete recently watched — NOW WORKING
-                  _ProfileTile(
-                    icon: SDGAIconsBulk.delete02,
-                    label: 'Delete Recently Watched',
-                    onTap: () => _confirmClearHistory(context),
-                  ),
-                  SizedBox(height: 10.h),
-
-                  // About — NOW WORKING
-                  _ProfileTile(
-                    icon: SDGAIconsBulk.informationCircle,
-                    label: 'About',
-                    onTap: () => AboutSheet.show(context),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
@@ -368,25 +306,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.r)),
-        title: Text(
-          'Delete Recently Watched',
-          style: TextStyle(
-            color: AppColors.textPrimary,
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        content: Text(
-          'This will clear all your watch history. Continue?',
-          style: TextStyle(color: AppColors.textSecondary, fontSize: 14.sp),
-        ),
+        title: Text('settings.clear_history'.tr(), style: TextStyle(color: AppColors.textPrimary, fontSize: 16.sp, fontWeight: FontWeight.w700)),
+        content: Text('settings.clear_history_msg'.tr(), style: TextStyle(color: AppColors.textSecondary, fontSize: 14.sp)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 14.sp),
-            ),
+            child: Text('common.cancel'.tr(), style: TextStyle(color: AppColors.textSecondary, fontSize: 14.sp)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -400,24 +325,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: const Text('Watch history cleared'),
+                    content: Text('settings.history_cleared'.tr()),
                     backgroundColor: AppColors.success,
                     behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
                   ),
                 );
               }
             },
-            child: Text(
-              'Delete',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 13.sp,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+            child: Text('common.delete'.tr(), style: TextStyle(color: Colors.white, fontSize: 13.sp, fontWeight: FontWeight.w700)),
           ),
         ],
       ),
@@ -430,25 +346,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.r)),
-        title: Text(
-          'Logout',
-          style: TextStyle(
-            color: AppColors.textPrimary,
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        content: Text(
-          'Are you sure you want to logout?',
-          style: TextStyle(color: AppColors.textSecondary, fontSize: 14.sp),
-        ),
+        title: Text('settings.logout'.tr(), style: TextStyle(color: AppColors.textPrimary, fontSize: 16.sp, fontWeight: FontWeight.w700)),
+        content: Text('settings.logout_msg'.tr(), style: TextStyle(color: AppColors.textSecondary, fontSize: 14.sp)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 14.sp),
-            ),
+            child: Text('common.cancel'.tr(), style: TextStyle(color: AppColors.textSecondary, fontSize: 14.sp)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -463,63 +366,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (_) => const LoginScreen()),
-                      (_) => false,
+                  (_) => false,
                 );
               }
             },
-            child: Text(
-              'Logout',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 13.sp,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+            child: Text('settings.logout'.tr(), style: TextStyle(color: Colors.white, fontSize: 13.sp, fontWeight: FontWeight.w700)),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _ViewToggle extends StatelessWidget {
-  final bool grid;
-  final ValueChanged<bool> onChanged;
-  const _ViewToggle({required this.grid, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(3.w),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(100.r),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _iconBtn(SDGAIconsStroke.menu08, !grid, () => onChanged(false)),
-          _iconBtn(SDGAIconsStroke.grid, grid, () => onChanged(true)),
-        ],
-      ),
-    );
-  }
-
-  Widget _iconBtn(SDGAIconData icon, bool active, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.all(8.w),
-        decoration: BoxDecoration(
-          color: active ? AppColors.primary : Colors.transparent,
-          shape: BoxShape.circle,
-        ),
-        child: SDGAIcon(
-          icon,
-          color: active ? Colors.white : AppColors.textMuted,
-          size: 16.sp,
-        ),
       ),
     );
   }
@@ -530,11 +383,7 @@ class _ProfileTile extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
 
-  const _ProfileTile({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
+  const _ProfileTile({required this.icon, required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -557,18 +406,10 @@ class _ProfileTile extends StatelessWidget {
               Expanded(
                 child: Text(
                   label,
-                  style: TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: TextStyle(color: AppColors.textPrimary, fontSize: 13.sp, fontWeight: FontWeight.w500),
                 ),
               ),
-              SDGAIcon(
-                SDGAIconsStroke.arrowLeft02,
-                color: AppColors.textMuted,
-                size: 16.sp,
-              ),
+              SDGAIcon(SDGAIconsStroke.arrowLeft02, color: AppColors.textMuted, size: 16.sp),
             ],
           ),
         ),
@@ -616,114 +457,81 @@ class _ProfileScreen extends StatelessWidget {
                         border: Border.all(color: AppColors.border),
                       ),
                       child: Center(
-                        child: SDGAIcon(
-                          SDGAIconsStroke.arrowRight02,
-                          color: Colors.white,
-                          size: 18.sp,
-                        ),
+                        child: SDGAIcon(SDGAIconsStroke.arrowRight02, color: Colors.white, size: 18.sp),
                       ),
                     ),
                   ),
                   const Spacer(),
                   Text(
-                    'Profile',
-                    style: TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 17.sp,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    'settings.profile'.tr(),
+                    style: TextStyle(color: AppColors.textPrimary, fontSize: 17.sp, fontWeight: FontWeight.w700),
                   ),
                   const Spacer(flex: 2),
                 ],
               ),
               const Spacer(),
               Center(
-                child: Column(
-                  children: [
-                    const AppLogo(size: 48),
-                    SizedBox(height: 40.h),
-                    Container(
-                      width: 72.w,
-                      height: 72.w,
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primary.withOpacity(0.5),
-                            blurRadius: 24,
-                            offset: const Offset(0, 8),
-                          ),
-                        ],
-                      ),
-                      child: Center(
-                        child: SDGAIcon(
-                          SDGAIconsBulk.link02,
-                          color: Colors.white,
-                          size: 32.sp,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 400),
+                  child: Column(
+                    children: [
+                      const AppLogo(size: 48),
+                      SizedBox(height: 40.h),
+                      Container(
+                        width: 72.w,
+                        height: 72.w,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(color: AppColors.primary.withValues(alpha: 0.5), blurRadius: 24, offset: const Offset(0, 8)),
+                          ],
                         ),
+                        child: Center(child: SDGAIcon(SDGAIconsBulk.link02, color: Colors.white, size: 32.sp)),
                       ),
-                    ),
-                    SizedBox(height: 32.h),
-                    Container(
-                      padding: EdgeInsets.all(18.w),
-                      decoration: BoxDecoration(
-                        color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(18.r),
-                        border: Border.all(color: AppColors.border),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                      SizedBox(height: 32.h),
+                      Container(
+                        padding: EdgeInsets.all(18.w),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(18.r),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    creds.username ?? '-',
+                                    style: TextStyle(color: AppColors.textPrimary, fontSize: 16.sp, fontWeight: FontWeight.w700),
+                                  ),
+                                  SizedBox(height: 4.h),
+                                  Text(
+                                    creds.serverUrl ?? '',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(color: AppColors.textMuted, fontSize: 11.sp),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text(
-                                  creds.username ?? '-',
-                                  style: TextStyle(
-                                    color: AppColors.textPrimary,
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                                  '$days',
+                                  style: TextStyle(color: AppColors.primary, fontSize: 32.sp, fontWeight: FontWeight.w800, height: 1),
                                 ),
-                                SizedBox(height: 4.h),
-                                Text(
-                                  creds.serverUrl ?? '',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: AppColors.textMuted,
-                                    fontSize: 11.sp,
-                                  ),
-                                ),
+                                Text('settings.days_remaining'.tr(), style: TextStyle(color: AppColors.textMuted, fontSize: 10.sp)),
                               ],
                             ),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                '$days',
-                                style: TextStyle(
-                                  color: AppColors.primary,
-                                  fontSize: 32.sp,
-                                  fontWeight: FontWeight.w800,
-                                  height: 1,
-                                ),
-                              ),
-                              Text(
-                                'Days Remaining',
-                                style: TextStyle(
-                                  color: AppColors.textMuted,
-                                  fontSize: 10.sp,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               const Spacer(flex: 2),

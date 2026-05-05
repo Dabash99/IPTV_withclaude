@@ -1,4 +1,5 @@
-import 'package:cached_network_image/cached_network_image.dart';
+﻿import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -6,7 +7,6 @@ import 'package:sdga_icons/sdga_icons.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../core/constants/app_colors.dart';
 import '../../data/datasources/watch_history_datasource.dart';
-import '../../domain/entities/stream_entities.dart';
 import '../../domain/repositories/iptv_repository.dart';
 import '../cubits/movies_cubit.dart';
 import '../cubits/series_cubit.dart';
@@ -28,7 +28,7 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  String _filter = 'new'; // 'new' | 'recently'
+  String _filter = 'new';
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -55,7 +55,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       body: Stack(
         children: [
-          // Subtle poster backdrop in top area
           Positioned(
             top: 0,
             left: 0,
@@ -81,7 +80,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           SafeArea(
             child: CustomScrollView(
               slivers: [
-                // App bar with logo + actions
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 16.h),
@@ -112,7 +110,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
 
-                // Keep Watching section
                 SliverToBoxAdapter(
                   child: BlocBuilder<WatchHistoryCubit, WatchHistoryState>(
                     builder: (context, historyState) {
@@ -121,8 +118,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _SectionTitle(
-                            prefix: 'KEEP',
-                            suffix: 'WATCHING',
+                            prefix: 'dashboard.keep'.tr(),
+                            suffix: 'dashboard.watching'.tr(),
                           ),
                           SizedBox(height: 14.h),
                           SizedBox(
@@ -131,7 +128,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               scrollDirection: Axis.horizontal,
                               padding: EdgeInsets.symmetric(horizontal: 16.w),
                               itemCount: historyState.items.length,
-                              separatorBuilder: (_, __) => SizedBox(width: 12.w),
+                              separatorBuilder: (_, _) => SizedBox(width: 12.w),
                               itemBuilder: (_, i) {
                                 final item = historyState.items[i];
                                 return _KeepWatchingCard(
@@ -148,7 +145,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
 
-                // New Movies section
                 SliverToBoxAdapter(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -158,7 +154,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            _SectionTitle(prefix: 'NEW', suffix: 'MOVIES'),
+                            _SectionTitle(
+                              prefix: 'dashboard.new_prefix'.tr(),
+                              suffix: 'dashboard.movies'.tr(),
+                            ),
                             _FilterToggle(
                               selected: _filter,
                               onChanged: (v) => setState(() => _filter = v),
@@ -182,7 +181,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 padding: EdgeInsets.all(32.w),
                                 child: Center(
                                   child: Text(
-                                    'No movies available',
+                                    'dashboard.no_movies'.tr(),
                                     style: TextStyle(
                                       color: AppColors.textMuted,
                                       fontSize: 13.sp,
@@ -197,7 +196,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 scrollDirection: Axis.horizontal,
                                 padding: EdgeInsets.symmetric(horizontal: 16.w),
                                 itemCount: movies.length,
-                                separatorBuilder: (_, __) => SizedBox(width: 12.w),
+                                separatorBuilder: (_, _) => SizedBox(width: 12.w),
                                 itemBuilder: (_, i) => _PosterThumb(
                                   name: movies[i].name,
                                   image: movies[i].streamIcon,
@@ -219,14 +218,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
 
-                // New Series section
                 SliverToBoxAdapter(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16.w),
-                        child: _SectionTitle(prefix: 'NEW', suffix: 'SERIES'),
+                        child: _SectionTitle(
+                          prefix: 'dashboard.new_prefix'.tr(),
+                          suffix: 'dashboard.series'.tr(),
+                        ),
                       ),
                       SizedBox(height: 14.h),
                       BlocBuilder<SeriesCubit, SeriesState>(
@@ -240,7 +241,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 scrollDirection: Axis.horizontal,
                                 padding: EdgeInsets.symmetric(horizontal: 16.w),
                                 itemCount: list.length,
-                                separatorBuilder: (_, __) => SizedBox(width: 12.w),
+                                separatorBuilder: (_, _) => SizedBox(width: 12.w),
                                 itemBuilder: (_, i) => _PosterThumb(
                                   name: list[i].name,
                                   image: list[i].cover,
@@ -265,12 +266,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
 
-                // Smart Recommendations: "Because you watched X"
                 SliverToBoxAdapter(
                   child: _RecommendationsSection(),
                 ),
 
-                // Trending Now (genre-based)
                 SliverToBoxAdapter(
                   child: _TrendingSection(),
                 ),
@@ -289,8 +288,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         itemCount: 5,
-        separatorBuilder: (_, __) => SizedBox(width: 12.w),
-        itemBuilder: (_, __) => Shimmer.fromColors(
+        separatorBuilder: (_, _) => SizedBox(width: 12.w),
+        itemBuilder: (_, _) => Shimmer.fromColors(
           baseColor: AppColors.cardLight,
           highlightColor: AppColors.surface,
           child: Container(
@@ -381,9 +380,9 @@ class _RoundIconButton extends StatelessWidget {
         width: 40.w,
         height: 40.w,
         decoration: BoxDecoration(
-          color: AppColors.surface.withOpacity(0.7),
+          color: AppColors.surface.withValues(alpha: 0.7),
           shape: BoxShape.circle,
-          border: Border.all(color: AppColors.border.withOpacity(0.5)),
+          border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
         ),
         child: Center(
           child: SDGAIcon(icon, color: Colors.white, size: 18.sp),
@@ -393,7 +392,7 @@ class _RoundIconButton extends StatelessWidget {
   }
 }
 
-// ============ Filter Toggle (New / Recently) ============
+// ============ Filter Toggle ============
 class _FilterToggle extends StatelessWidget {
   final String selected;
   final ValueChanged<String> onChanged;
@@ -405,15 +404,15 @@ class _FilterToggle extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(3.w),
       decoration: BoxDecoration(
-        color: AppColors.surface.withOpacity(0.8),
+        color: AppColors.surface.withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(100.r),
-        border: Border.all(color: AppColors.border.withOpacity(0.6)),
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.6)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _pill('New', 'new'),
-          _pill('Recently', 'recently'),
+          _pill('dashboard.filter_new'.tr(), 'new'),
+          _pill('dashboard.filter_recently'.tr(), 'recently'),
         ],
       ),
     );
@@ -468,7 +467,7 @@ class _KeepWatchingCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(14.r),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.4),
+                            color: Colors.black.withValues(alpha: 0.4),
                             blurRadius: 12,
                             offset: const Offset(0, 6),
                           ),
@@ -481,22 +480,21 @@ class _KeepWatchingCard extends StatelessWidget {
                             : CachedNetworkImage(
                           imageUrl: item.image,
                           fit: BoxFit.cover,
-                          errorWidget: (_, __, ___) =>
+                          errorWidget: (_, _, _) =>
                               Container(color: AppColors.cardLight),
                         ),
                       ),
                     ),
                   ),
-                  // Play overlay
                   Positioned.fill(
                     child: Center(
                       child: Container(
                         width: 40.w,
                         height: 40.w,
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.55),
+                          color: Colors.black.withValues(alpha: 0.55),
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white.withOpacity(0.4)),
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.4)),
                         ),
                         child: Center(
                           child: SDGAIcon(
@@ -508,7 +506,6 @@ class _KeepWatchingCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Progress bar
                   if (item.progress > 0)
                     Positioned(
                       left: 8.w,
@@ -519,7 +516,7 @@ class _KeepWatchingCard extends StatelessWidget {
                         child: LinearProgressIndicator(
                           value: item.progress,
                           minHeight: 3.h,
-                          backgroundColor: Colors.white.withOpacity(0.25),
+                          backgroundColor: Colors.white.withValues(alpha: 0.25),
                           valueColor: const AlwaysStoppedAnimation(AppColors.primary),
                         ),
                       ),
@@ -572,7 +569,7 @@ class _PosterThumb extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12.r),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.4),
+                      color: Colors.black.withValues(alpha: 0.4),
                       blurRadius: 12,
                       offset: const Offset(0, 6),
                     ),
@@ -585,8 +582,8 @@ class _PosterThumb extends StatelessWidget {
                       : CachedNetworkImage(
                     imageUrl: image,
                     fit: BoxFit.cover,
-                    placeholder: (_, __) => Container(color: AppColors.cardLight),
-                    errorWidget: (_, __, ___) =>
+                    placeholder: (_, _) => Container(color: AppColors.cardLight),
+                    errorWidget: (_, _, _) =>
                         Container(color: AppColors.cardLight),
                   ),
                 ),
@@ -642,7 +639,7 @@ class _RecommendationsSection extends StatelessWidget {
                     text: TextSpan(
                       style: TextStyle(fontSize: 12.sp, fontFamily: 'Cairo'),
                       children: [
-                        TextSpan(text: 'Because you watched ', style: TextStyle(color: AppColors.textMuted, fontWeight: FontWeight.w400)),
+                        TextSpan(text: 'dashboard.because_watched'.tr(), style: TextStyle(color: AppColors.textMuted, fontWeight: FontWeight.w400)),
                         TextSpan(text: lastMovie.name, style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w700)),
                       ],
                     ),
@@ -655,7 +652,7 @@ class _RecommendationsSection extends StatelessWidget {
                     scrollDirection: Axis.horizontal,
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
                     itemCount: recs.length,
-                    separatorBuilder: (_, __) => SizedBox(width: 12.w),
+                    separatorBuilder: (_, _) => SizedBox(width: 12.w),
                     itemBuilder: (_, i) => _PosterThumb(
                       name: recs[i].name,
                       image: recs[i].streamIcon,
@@ -675,7 +672,7 @@ class _RecommendationsSection extends StatelessWidget {
   }
 }
 
-// ── Trending Now (genre-based) ─────────────────────────────────────
+// ── Trending Now ─────────────────────────────────────────────────
 class _TrendingSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -717,7 +714,7 @@ class _TrendingSection extends StatelessWidget {
                     text: TextSpan(
                       style: TextStyle(fontSize: 15.sp, letterSpacing: 1, fontFamily: 'Cairo'),
                       children: [
-                        TextSpan(text: 'TRENDING ', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w300)),
+                        TextSpan(text: '${'dashboard.trending'.tr()} ', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w300)),
                         TextSpan(text: topGenre.toUpperCase(), style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w800)),
                       ],
                     ),
@@ -730,7 +727,7 @@ class _TrendingSection extends StatelessWidget {
                     scrollDirection: Axis.horizontal,
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
                     itemCount: toShow.length,
-                    separatorBuilder: (_, __) => SizedBox(width: 12.w),
+                    separatorBuilder: (_, _) => SizedBox(width: 12.w),
                     itemBuilder: (_, i) => _PosterThumb(
                       name: toShow[i].name,
                       image: toShow[i].streamIcon,

@@ -1,8 +1,10 @@
+﻿import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sdga_icons/sdga_icons.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive.dart';
 import '../../data/datasources/favorites_datasource.dart';
 import '../../domain/repositories/iptv_repository.dart';
 import '../cubits/favorites_cubit.dart';
@@ -43,14 +45,14 @@ class FavoritesScreen extends StatelessWidget {
                     style: TextStyle(fontSize: 15.sp, letterSpacing: 1, fontFamily: 'Cairo'),
                     children: [
                       TextSpan(
-                        text: 'MY ',
+                        text: '${'favorites.title_prefix'.tr()} ',
                         style: TextStyle(
                           color: AppColors.textPrimary,
                           fontWeight: FontWeight.w300,
                         ),
                       ),
                       TextSpan(
-                        text: 'FAVORITES',
+                        text: 'favorites.title_suffix'.tr(),
                         style: TextStyle(
                           color: AppColors.textPrimary,
                           fontWeight: FontWeight.w800,
@@ -65,9 +67,9 @@ class FavoritesScreen extends StatelessWidget {
                 margin: EdgeInsets.symmetric(horizontal: 16.w),
                 padding: EdgeInsets.all(4.w),
                 decoration: BoxDecoration(
-                  color: AppColors.surface.withOpacity(0.7),
+                  color: AppColors.surface.withValues(alpha: 0.7),
                   borderRadius: BorderRadius.circular(100.r),
-                  border: Border.all(color: AppColors.border.withOpacity(0.5)),
+                  border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
                 ),
                 child: TabBar(
                   indicator: BoxDecoration(
@@ -75,7 +77,7 @@ class FavoritesScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(100.r),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.primary.withOpacity(0.4),
+                        color: AppColors.primary.withValues(alpha: 0.4),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -88,10 +90,10 @@ class FavoritesScreen extends StatelessWidget {
                   dividerColor: Colors.transparent,
                   splashFactory: NoSplash.splashFactory,
                   overlayColor: WidgetStateProperty.all(Colors.transparent),
-                  tabs: const [
-                    Tab(text: 'Channels'),
-                    Tab(text: 'Movies'),
-                    Tab(text: 'Series'),
+                  tabs: [
+                    Tab(text: 'favorites.channels'.tr()),
+                    Tab(text: 'favorites.movies'.tr()),
+                    Tab(text: 'favorites.series'.tr()),
                   ],
                 ),
               ),
@@ -127,16 +129,16 @@ class _FavList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (items.isEmpty) {
-      return const EmptyStateWidget(
+      return EmptyStateWidget(
         icon: SDGAIconsBulk.favourite,
-        message: 'No favorite channels yet',
-        subtitle: 'Tap the heart icon next to any channel',
+        message: 'favorites.no_channels'.tr(),
+        subtitle: 'favorites.no_channels_sub'.tr(),
       );
     }
     return ListView.separated(
       padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 100.h),
       itemCount: items.length,
-      separatorBuilder: (_, __) => SizedBox(height: 10.h),
+      separatorBuilder: (_, _) => SizedBox(height: 10.h),
       itemBuilder: (_, i) {
         final item = items[i];
         return Row(
@@ -190,15 +192,15 @@ class _FavGrid extends StatelessWidget {
             ? SDGAIconsBulk.video01
             : SDGAIconsBulk.folderLibrary,
         message: type == FavoriteType.movie
-            ? 'No favorite movies yet'
-            : 'No favorite series yet',
-        subtitle: 'Tap ❤️ on the details page',
+            ? 'favorites.no_movies'.tr()
+            : 'favorites.no_series'.tr(),
+        subtitle: 'favorites.tap_heart'.tr(),
       );
     }
     return GridView.builder(
       padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 100.h),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
+        crossAxisCount: Responsive.posterGridColumns(context),
         crossAxisSpacing: 12.w,
         mainAxisSpacing: 16.h,
         childAspectRatio: 0.6,

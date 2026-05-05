@@ -1,3 +1,4 @@
+﻿import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sdga_icons/sdga_icons.dart';
@@ -61,7 +62,7 @@ class EpgBottomSheet extends StatelessWidget {
                 width: 38.w,
                 height: 38.w,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.15),
+                  color: AppColors.primary.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10.r),
                 ),
                 child: Center(
@@ -78,7 +79,7 @@ class EpgBottomSheet extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'جدول البرامج',
+                      'epg.title'.tr(),
                       style: TextStyle(
                         color: AppColors.textMuted,
                         fontSize: 11.sp,
@@ -117,7 +118,7 @@ class EpgBottomSheet extends StatelessWidget {
                     ),
                     SizedBox(height: 12.h),
                     Text(
-                      'مفيش معلومات EPG متاحة',
+                      'epg.no_info'.tr(),
                       style: TextStyle(
                         color: AppColors.textMuted,
                         fontSize: 14.sp,
@@ -132,7 +133,7 @@ class EpgBottomSheet extends StatelessWidget {
               child: ListView.separated(
                 shrinkWrap: true,
                 itemCount: programmes.length,
-                separatorBuilder: (_, __) => SizedBox(height: 8.h),
+                separatorBuilder: (_, _) => SizedBox(height: 8.h),
                 itemBuilder: (_, i) {
                   final p = programmes[i];
                   final isLive = now.isAfter(p.start) && now.isBefore(p.end);
@@ -162,8 +163,8 @@ class _ProgrammeTile extends StatelessWidget {
         gradient: isLive
             ? LinearGradient(
           colors: [
-            AppColors.primary.withOpacity(0.15),
-            AppColors.accent.withOpacity(0.08),
+            AppColors.primary.withValues(alpha: 0.15),
+            AppColors.accent.withValues(alpha: 0.08),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -178,7 +179,7 @@ class _ProgrammeTile extends StatelessWidget {
         boxShadow: isLive
             ? [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.2),
+            color: AppColors.primary.withValues(alpha: 0.2),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -210,7 +211,7 @@ class _ProgrammeTile extends StatelessWidget {
                   SizedBox(width: 5.w),
                 ],
                 Text(
-                  isLive ? 'الآن' : _formatTime(programme.start),
+                  isLive ? 'epg.now'.tr() : _formatTime(programme.start),
                   style: TextStyle(
                     color: isLive ? Colors.white : AppColors.textSecondary,
                     fontSize: 11.sp,

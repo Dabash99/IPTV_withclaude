@@ -1,4 +1,5 @@
-import 'package:cached_network_image/cached_network_image.dart';
+﻿import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sdga_icons/sdga_icons.dart';
@@ -37,7 +38,7 @@ class CategoryChip extends StatelessWidget {
           boxShadow: selected
               ? [
             BoxShadow(
-              color: AppColors.primary.withOpacity(0.4),
+              color: AppColors.primary.withValues(alpha: 0.4),
               blurRadius: 16,
               offset: const Offset(0, 4),
             ),
@@ -103,8 +104,8 @@ class LiveStreamCard extends StatelessWidget {
                     : CachedNetworkImage(
                   imageUrl: icon,
                   fit: BoxFit.cover,
-                  placeholder: (_, __) => _shimmer(),
-                  errorWidget: (_, __, ___) => Center(
+                  placeholder: (_, _) => _shimmer(),
+                  errorWidget: (_, _, _) => Center(
                     child: SDGAIcon(
                       SDGAIconsBulk.tv01,
                       color: AppColors.textMuted,
@@ -141,7 +142,7 @@ class LiveStreamCard extends StatelessWidget {
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.live.withOpacity(0.6),
+                              color: AppColors.live.withValues(alpha: 0.6),
                               blurRadius: 6,
                             ),
                           ],
@@ -150,7 +151,7 @@ class LiveStreamCard extends StatelessWidget {
                       SizedBox(width: 6.w),
                       Expanded(
                         child: Text(
-                          currentProgramme ?? 'مباشر',
+                          currentProgramme ?? 'common.live'.tr(),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -173,7 +174,7 @@ class LiveStreamCard extends StatelessWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.4),
+                    color: AppColors.primary.withValues(alpha: 0.4),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -228,7 +229,7 @@ class PosterCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(14.r),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.4),
+                    color: Colors.black.withValues(alpha: 0.4),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -252,12 +253,12 @@ class PosterCard extends StatelessWidget {
                             : CachedNetworkImage(
                           imageUrl: image,
                           fit: BoxFit.cover,
-                          placeholder: (_, __) => Shimmer.fromColors(
+                          placeholder: (_, _) => Shimmer.fromColors(
                             baseColor: AppColors.cardLight,
                             highlightColor: AppColors.surface,
                             child: Container(color: AppColors.cardLight),
                           ),
-                          errorWidget: (_, __, ___) => Center(
+                          errorWidget: (_, _, _) => Center(
                             child: SDGAIcon(
                               SDGAIconsBulk.video01,
                               color: AppColors.textMuted,
@@ -284,7 +285,7 @@ class PosterCard extends StatelessWidget {
                           end: Alignment.bottomCenter,
                           colors: [
                             Colors.transparent,
-                            Colors.black.withOpacity(0.8),
+                            Colors.black.withValues(alpha: 0.8),
                           ],
                         ),
                       ),
@@ -298,10 +299,10 @@ class PosterCard extends StatelessWidget {
                       child: Container(
                         padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.75),
+                          color: Colors.black.withValues(alpha: 0.75),
                           borderRadius: BorderRadius.circular(8.r),
                           border: Border.all(
-                            color: Colors.white.withOpacity(0.1),
+                            color: Colors.white.withValues(alpha: 0.1),
                             width: 0.5,
                           ),
                         ),
@@ -357,7 +358,7 @@ class SearchField extends StatelessWidget {
     super.key,
     required this.controller,
     required this.onChanged,
-    this.hint = 'بحث...',
+    this.hint = '',
   });
 
   @override
@@ -432,7 +433,7 @@ class SectionHeader extends StatelessWidget {
           ),
         ),
         const Spacer(),
-        if (trailing != null) trailing!,
+        ?trailing,
       ],
     );
   }
@@ -526,7 +527,7 @@ class ErrorStateWidget extends StatelessWidget {
               width: 80.w,
               height: 80.w,
               decoration: BoxDecoration(
-                color: AppColors.error.withOpacity(0.1),
+                color: AppColors.error.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -560,7 +561,7 @@ class ErrorStateWidget extends StatelessWidget {
                   size: 18.sp,
                 ),
                 label: Text(
-                  'إعادة المحاولة',
+                  'common.retry'.tr(),
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 13.sp,

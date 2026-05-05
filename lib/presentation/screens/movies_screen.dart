@@ -1,8 +1,10 @@
+﻿import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sdga_icons/sdga_icons.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive.dart';
 import '../cubits/movies_cubit.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/app_logo.dart';
@@ -81,7 +83,7 @@ class _MoviesScreenState extends State<MoviesScreen> {
                 padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 12.h),
                 child: SearchField(
                   controller: _searchController,
-                  hint: 'Search movies...',
+                  hint: 'movies.search_hint'.tr(),
                   onChanged: (v) => context.read<MoviesCubit>().search(v),
                 ),
               )
@@ -94,11 +96,11 @@ class _MoviesScreenState extends State<MoviesScreen> {
                   style: TextStyle(fontSize: 15.sp, letterSpacing: 1, fontFamily: 'Cairo'),
                   children: [
                     TextSpan(
-                      text: 'ALL ',
+                      text: '${'movies.title_prefix'.tr()} ',
                       style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w300),
                     ),
                     TextSpan(
-                      text: 'MOVIES',
+                      text: 'movies.title_suffix'.tr(),
                       style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w800),
                     ),
                   ],
@@ -146,11 +148,11 @@ class _MoviesContent extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.symmetric(horizontal: 16.w),
             itemCount: state.categories.length + 1,
-            separatorBuilder: (_, __) => SizedBox(width: 8.w),
+            separatorBuilder: (_, _) => SizedBox(width: 8.w),
             itemBuilder: (_, i) {
               if (i == 0) {
                 return CategoryChip(
-                  label: 'All',
+                  label: 'common.all'.tr(),
                   selected: state.selectedCategoryId == null,
                   onTap: () => context.read<MoviesCubit>().selectCategory(null),
                 );
@@ -167,14 +169,14 @@ class _MoviesContent extends StatelessWidget {
         SizedBox(height: 14.h),
         Expanded(
           child: state.filteredMovies.isEmpty
-              ? const EmptyStateWidget(
+              ? EmptyStateWidget(
             icon: SDGAIconsBulk.video01,
-            message: 'No movies found',
+            message: 'movies.no_movies'.tr(),
           )
               : GridView.builder(
             padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 100.h),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
+              crossAxisCount: Responsive.posterGridColumns(context),
               crossAxisSpacing: 12.w,
               mainAxisSpacing: 16.h,
               childAspectRatio: 0.6,
@@ -216,9 +218,9 @@ class _IconBtn extends StatelessWidget {
         width: 40.w,
         height: 40.w,
         decoration: BoxDecoration(
-          color: AppColors.surface.withOpacity(0.7),
+          color: AppColors.surface.withValues(alpha: 0.7),
           shape: BoxShape.circle,
-          border: Border.all(color: AppColors.border.withOpacity(0.5)),
+          border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
         ),
         child: Center(
           child: SDGAIcon(icon, color: Colors.white, size: 18.sp),

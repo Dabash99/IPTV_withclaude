@@ -1,4 +1,4 @@
-import 'dart:ui';
+﻿import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
@@ -42,15 +42,15 @@ class PosterBackdrop extends StatelessWidget {
             return CachedNetworkImage(
               imageUrl: url,
               fit: BoxFit.cover,
-              placeholder: (_, __) => Container(color: AppColors.cardLight),
-              errorWidget: (_, __, ___) => Container(color: AppColors.cardLight),
+              placeholder: (_, _) => Container(color: AppColors.cardLight),
+              errorWidget: (_, _, _) => Container(color: AppColors.cardLight),
             );
           }).toList(),
         ),
         // Blur layer
         BackdropFilter(
           filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
-          child: Container(color: Colors.black.withOpacity(0.1)),
+          child: Container(color: Colors.black.withValues(alpha: 0.1)),
         ),
         // Gradient overlay for text readability
         Container(
@@ -59,8 +59,8 @@ class PosterBackdrop extends StatelessWidget {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                AppColors.background.withOpacity(overlayOpacity * 0.6),
-                AppColors.background.withOpacity(overlayOpacity),
+                AppColors.background.withValues(alpha: overlayOpacity * 0.6),
+                AppColors.background.withValues(alpha: overlayOpacity),
                 AppColors.background,
               ],
               stops: const [0.0, 0.5, 1.0],
@@ -74,7 +74,7 @@ class PosterBackdrop extends StatelessWidget {
               center: Alignment.center,
               radius: 1.2,
               colors: [
-                AppColors.primary.withOpacity(0.15),
+                AppColors.primary.withValues(alpha: 0.15),
                 Colors.transparent,
               ],
             ),

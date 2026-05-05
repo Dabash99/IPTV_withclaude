@@ -1,4 +1,5 @@
-import 'package:cached_network_image/cached_network_image.dart';
+﻿import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -129,7 +130,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                           textDirection: TextDirection.rtl,
                           style: TextStyle(color: Colors.white, fontSize: 14.sp),
                           decoration: InputDecoration(
-                            hintText: 'Search movies, series, channels...',
+                            hintText: 'search.hint'.tr(),
                             hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 13.sp),
                             border: InputBorder.none,
                             contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 0),
@@ -187,10 +188,10 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                   labelStyle: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w700),
                   unselectedLabelStyle: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500),
                   onTap: (_) => setState(() {}),
-                  tabs: const [
-                    Tab(text: 'Live'),
-                    Tab(text: 'Movies'),
-                    Tab(text: 'Series'),
+                  tabs: [
+                    Tab(text: 'search.live'.tr()),
+                    Tab(text: 'search.movies'.tr()),
+                    Tab(text: 'search.series'.tr()),
                   ],
                 ),
               ),
@@ -238,19 +239,19 @@ class _FilterRow extends StatelessWidget {
     return Row(
       children: [
         _FilterChip(
-          label: genreFilter?.isNotEmpty == true ? genreFilter! : 'Genre',
+          label: genreFilter?.isNotEmpty == true ? genreFilter! : 'search.genre'.tr(),
           active: genreFilter?.isNotEmpty == true,
           onTap: () => _showGenreDialog(context),
         ),
         SizedBox(width: 8.w),
         _FilterChip(
-          label: yearFilter?.isNotEmpty == true ? yearFilter! : 'Year',
+          label: yearFilter?.isNotEmpty == true ? yearFilter! : 'search.year'.tr(),
           active: yearFilter?.isNotEmpty == true,
           onTap: () => _showYearDialog(context),
         ),
         SizedBox(width: 8.w),
         _FilterChip(
-          label: minRating != null ? '★ ${minRating!.toStringAsFixed(0)}+' : 'Rating',
+          label: minRating != null ? '★ ${minRating!.toStringAsFixed(0)}+' : 'search.rating'.tr(),
           active: minRating != null,
           onTap: () => _showRatingDialog(context),
         ),
@@ -265,11 +266,11 @@ class _FilterRow extends StatelessWidget {
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
               decoration: BoxDecoration(
-                color: AppColors.error.withOpacity(0.15),
+                color: AppColors.error.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(100.r),
-                border: Border.all(color: AppColors.error.withOpacity(0.3)),
+                border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
               ),
-              child: Text('Clear', style: TextStyle(color: AppColors.error, fontSize: 11.sp)),
+              child: Text('common.clear'.tr(), style: TextStyle(color: AppColors.error, fontSize: 11.sp)),
             ),
           ),
         ],
@@ -284,7 +285,7 @@ class _FilterRow extends StatelessWidget {
       backgroundColor: AppColors.surface,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20.r))),
       builder: (ctx) => _PickerSheet(
-        title: 'Genre',
+        title: 'search.genre'.tr(),
         items: genres,
         selected: genreFilter,
         onSelected: (v) { onGenreChanged(v); Navigator.pop(ctx); },
@@ -300,7 +301,7 @@ class _FilterRow extends StatelessWidget {
       backgroundColor: AppColors.surface,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20.r))),
       builder: (ctx) => _PickerSheet(
-        title: 'Year',
+        title: 'search.year'.tr(),
         items: years,
         selected: yearFilter,
         onSelected: (v) { onYearChanged(v); Navigator.pop(ctx); },
@@ -314,7 +315,7 @@ class _FilterRow extends StatelessWidget {
       backgroundColor: AppColors.surface,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20.r))),
       builder: (ctx) => _PickerSheet(
-        title: 'Minimum Rating',
+        title: 'search.min_rating'.tr(),
         items: ['5', '6', '7', '8', '9'],
         selected: minRating?.toStringAsFixed(0),
         onSelected: (v) { onRatingChanged(double.tryParse(v ?? '')); Navigator.pop(ctx); },
@@ -336,9 +337,9 @@ class _FilterChip extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
         decoration: BoxDecoration(
-          color: active ? AppColors.primary.withOpacity(0.15) : AppColors.surface,
+          color: active ? AppColors.primary.withValues(alpha: 0.15) : AppColors.surface,
           borderRadius: BorderRadius.circular(100.r),
-          border: Border.all(color: active ? AppColors.primary.withOpacity(0.5) : AppColors.border),
+          border: Border.all(color: active ? AppColors.primary.withValues(alpha: 0.5) : AppColors.border),
         ),
         child: Text(
           label,
@@ -395,7 +396,7 @@ class _LiveResults extends StatelessWidget {
         }
         if (state is! LiveLoaded) return const SizedBox.shrink();
         final results = filter(state.streams);
-        if (results.isEmpty) return _EmptyResult(message: 'No live channels found');
+        if (results.isEmpty) return _EmptyResult(message: 'search.no_live'.tr());
         return ListView.builder(
           padding: EdgeInsets.symmetric(horizontal: 16.w),
           itemCount: results.length,
@@ -434,7 +435,7 @@ class _MoviesResults extends StatelessWidget {
         }
         if (state is! MoviesLoaded) return const SizedBox.shrink();
         final results = filter(state.movies);
-        if (results.isEmpty) return _EmptyResult(message: 'No movies found');
+        if (results.isEmpty) return _EmptyResult(message: 'search.no_movies'.tr());
         return ListView.builder(
           padding: EdgeInsets.symmetric(horizontal: 16.w),
           itemCount: results.length,
@@ -472,7 +473,7 @@ class _SeriesResults extends StatelessWidget {
         }
         if (state is! SeriesLoaded) return const SizedBox.shrink();
         final results = filter(state.seriesList);
-        if (results.isEmpty) return _EmptyResult(message: 'No series found');
+        if (results.isEmpty) return _EmptyResult(message: 'search.no_series'.tr());
         return ListView.builder(
           padding: EdgeInsets.symmetric(horizontal: 16.w),
           itemCount: results.length,
@@ -528,7 +529,7 @@ class _SearchTile extends StatelessWidget {
                 imageUrl: image,
                 width: 56.w, height: 56.w,
                 fit: BoxFit.cover,
-                errorWidget: (_, __, ___) => Container(width: 56.w, height: 56.w, color: AppColors.cardLight),
+                errorWidget: (_, _, _) => Container(width: 56.w, height: 56.w, color: AppColors.cardLight),
               ),
             ),
             SizedBox(width: 12.w),

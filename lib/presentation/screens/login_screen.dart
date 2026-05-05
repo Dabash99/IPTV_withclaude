@@ -1,3 +1,4 @@
+﻿import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -5,7 +6,6 @@ import 'package:sdga_icons/sdga_icons.dart';
 import '../../core/constants/app_colors.dart';
 import '../cubits/auth_cubit.dart';
 import '../widgets/app_logo.dart';
-import '../widgets/custom_text_field.dart';
 import '../widgets/poster_backdrop.dart';
 import 'home_screen.dart';
 
@@ -23,7 +23,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
-  // Cinematic backdrop posters
   final _samplePosters = const [
     'https://image.tmdb.org/t/p/w500/kXfqcdQKsToO0OUXHcrrNCHDBzO.jpg',
     'https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg',
@@ -102,13 +101,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       children: [
                         SizedBox(height: 40.h),
 
-                        // Logo
                         const AppLogo(size: 48),
                         SizedBox(height: 60.h),
 
-                        // Title
                         Text(
-                          'Log in to Your',
+                          'login.title1'.tr(),
                           style: TextStyle(
                             color: AppColors.textPrimary,
                             fontSize: 26.sp,
@@ -117,7 +114,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         Text(
-                          'Account',
+                          'login.title2'.tr(),
                           style: TextStyle(
                             color: AppColors.textPrimary,
                             fontSize: 26.sp,
@@ -129,7 +126,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 20.w),
                           child: Text(
-                            'with this application, you can watch your\nbroadcasts using the link you receive ip tv\nservice',
+                            'login.subtitle'.tr(),
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: AppColors.textSecondary,
@@ -140,37 +137,34 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         SizedBox(height: 48.h),
 
-                        // Server URL field
                         _GlassField(
                           controller: _serverController,
-                          hint: 'http://example.com:8080',
+                          hint: 'login.server_hint'.tr(),
                           icon: SDGAIconsBulk.link02,
                           keyboardType: TextInputType.url,
                           textInputAction: TextInputAction.next,
                           validator: (v) {
-                            if (v == null || v.trim().isEmpty) return 'أدخل رابط السيرفر';
+                            if (v == null || v.trim().isEmpty) return 'login.server_required'.tr();
                             return null;
                           },
                         ),
                         SizedBox(height: 14.h),
 
-                        // Username field
                         _GlassField(
                           controller: _usernameController,
-                          hint: 'Enter Your Username',
+                          hint: 'login.username_hint'.tr(),
                           icon: SDGAIconsBulk.user,
                           textInputAction: TextInputAction.next,
                           validator: (v) {
-                            if (v == null || v.trim().isEmpty) return 'أدخل اسم المستخدم';
+                            if (v == null || v.trim().isEmpty) return 'login.username_required'.tr();
                             return null;
                           },
                         ),
                         SizedBox(height: 14.h),
 
-                        // Password field
                         _GlassField(
                           controller: _passwordController,
-                          hint: 'Enter Your Password',
+                          hint: 'login.password_hint'.tr(),
                           icon: SDGAIconsBulk.lock,
                           obscure: _obscurePassword,
                           textInputAction: TextInputAction.done,
@@ -186,13 +180,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                 setState(() => _obscurePassword = !_obscurePassword),
                           ),
                           validator: (v) {
-                            if (v == null || v.isEmpty) return 'أدخل كلمة المرور';
+                            if (v == null || v.isEmpty) return 'login.password_required'.tr();
                             return null;
                           },
                         ),
                         SizedBox(height: 32.h),
 
-                        // Login button - pill-shaped with gradient
                         SizedBox(
                           width: double.infinity,
                           child: Container(
@@ -203,7 +196,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ? []
                                   : [
                                 BoxShadow(
-                                  color: AppColors.primary.withOpacity(0.5),
+                                  color: AppColors.primary.withValues(alpha: 0.5),
                                   blurRadius: 24,
                                   offset: const Offset(0, 8),
                                 ),
@@ -213,7 +206,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               onPressed: isLoading ? null : _submit,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.primary,
-                                disabledBackgroundColor: AppColors.primary.withOpacity(0.4),
+                                disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.4),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(100.r),
                                 ),
@@ -232,7 +225,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    'Login',
+                                    'login.btn'.tr(),
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 16.sp,
@@ -252,7 +245,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         SizedBox(height: 40.h),
                         Text(
-                          'Version 1.2.1',
+                          'login.version'.tr(),
                           style: TextStyle(
                             color: AppColors.textMuted,
                             fontSize: 11.sp,
@@ -272,7 +265,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-/// Pill-shaped glass-style text field matching reference design
 class _GlassField extends StatelessWidget {
   final TextEditingController controller;
   final String hint;
@@ -314,7 +306,7 @@ class _GlassField extends StatelessWidget {
         prefixIconConstraints: BoxConstraints(minWidth: 48.w, minHeight: 48.h),
         suffixIcon: suffix,
         filled: true,
-        fillColor: AppColors.surface.withOpacity(0.6),
+        fillColor: AppColors.surface.withValues(alpha: 0.6),
         contentPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(100.r),
@@ -323,7 +315,7 @@ class _GlassField extends StatelessWidget {
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(100.r),
           borderSide: BorderSide(
-            color: AppColors.border.withOpacity(0.6),
+            color: AppColors.border.withValues(alpha: 0.6),
             width: 1,
           ),
         ),

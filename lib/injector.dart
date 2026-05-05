@@ -40,9 +40,7 @@ class AppInjector {
     final injector = AppInjector._();
 
     injector.dioHelper = DioHelper();
-    injector.secureStorage = const FlutterSecureStorage(
-      aOptions: AndroidOptions(encryptedSharedPreferences: true),
-    );
+    injector.secureStorage = const FlutterSecureStorage();
     injector.sharedPreferences = await SharedPreferences.getInstance();
 
     injector.remoteDataSource = IptvRemoteDataSourceImpl(injector.dioHelper);
