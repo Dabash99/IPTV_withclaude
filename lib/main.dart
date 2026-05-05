@@ -1,5 +1,6 @@
 ﻿import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'core/constants/app_colors.dart';
@@ -99,7 +100,10 @@ class MyApp extends StatelessWidget {
                 surface: AppColors.surface,
                 error: AppColors.error,
               ),
-              fontFamily: 'Cairo',
+              textTheme: GoogleFonts.ibmPlexSansArabicTextTheme(
+                ThemeData(brightness: Brightness.dark).textTheme,
+              ),
+              fontFamily: GoogleFonts.ibmPlexSansArabic().fontFamily,
             ),
             home: const SplashScreen(),
           ),
