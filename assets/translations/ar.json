@@ -45,7 +45,10 @@
     "clear_history_msg": "سيؤدي هذا إلى مسح سجل المشاهدة بالكامل. هل تريد المتابعة؟",
     "history_cleared": "تم مسح سجل المشاهدة",
     "about": "حول التطبيق",
-    "days_remaining": "أيام متبقية"
+    "days_remaining": "أيام متبقية",
+    "language": "اللغة",
+    "lang_ar": "العربية",
+    "lang_en": "English"
   },
   "dashboard": {
     "keep": "متابعة",

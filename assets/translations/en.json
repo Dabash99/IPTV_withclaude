@@ -45,7 +45,10 @@
     "clear_history_msg": "This will clear all your watch history. Continue?",
     "history_cleared": "Watch history cleared",
     "about": "About",
-    "days_remaining": "Days Remaining"
+    "days_remaining": "Days Remaining",
+    "language": "Language",
+    "lang_ar": "العربية",
+    "lang_en": "English"
   },
   "dashboard": {
     "keep": "KEEP",

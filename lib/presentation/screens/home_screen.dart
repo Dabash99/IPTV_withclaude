@@ -289,6 +289,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         label: 'settings.about'.tr(),
                         onTap: () => AboutSheet.show(context),
                       ),
+                      SizedBox(height: 10.h),
+                      _LanguageTile(),
                     ],
                   ),
                 ),
@@ -413,6 +415,81 @@ class _ProfileTile extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ============ Language Switcher Tile ============
+class _LanguageTile extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final isArabic = context.locale.languageCode == 'ar';
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 14.h),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(100.r),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        children: [
+          SDGAIcon(SDGAIconsBulk.global, color: AppColors.textPrimary, size: 18.sp),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Text(
+              'settings.language'.tr(),
+              style: TextStyle(color: AppColors.textPrimary, fontSize: 13.sp, fontWeight: FontWeight.w500),
+            ),
+          ),
+          GestureDetector(
+            onTap: () => context.setLocale(const Locale('ar')),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+              decoration: BoxDecoration(
+                gradient: isArabic ? AppColors.primaryGradient : null,
+                color: isArabic ? null : AppColors.cardLight,
+                borderRadius: BorderRadius.circular(20.r),
+                border: Border.all(
+                  color: isArabic ? Colors.transparent : AppColors.border,
+                ),
+              ),
+              child: Text(
+                'settings.lang_ar'.tr(),
+                style: TextStyle(
+                  color: isArabic ? Colors.white : AppColors.textSecondary,
+                  fontSize: 11.sp,
+                  fontWeight: isArabic ? FontWeight.w700 : FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: 8.w),
+          GestureDetector(
+            onTap: () => context.setLocale(const Locale('en')),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+              decoration: BoxDecoration(
+                gradient: !isArabic ? AppColors.primaryGradient : null,
+                color: !isArabic ? null : AppColors.cardLight,
+                borderRadius: BorderRadius.circular(20.r),
+                border: Border.all(
+                  color: !isArabic ? Colors.transparent : AppColors.border,
+                ),
+              ),
+              child: Text(
+                'settings.lang_en'.tr(),
+                style: TextStyle(
+                  color: !isArabic ? Colors.white : AppColors.textSecondary,
+                  fontSize: 11.sp,
+                  fontWeight: !isArabic ? FontWeight.w700 : FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
