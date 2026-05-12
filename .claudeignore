@@ -1,0 +1,56 @@
+# Build artifacts
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Platform-specific
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+android/key.properties
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Runner.xcworkspace/
+linux/
+macos/
+windows/
+web/
+
+# Generated files
+*.g.dart
+*.freezed.dart
+*.mocks.dart
+*.config.dart
+pubspec.lock
+
+# Tests
+test/
+integration_test/
+
+# Logs & temp
+*.log
+.DS_Store
+
+# Assets
+assets/images/
+assets/icons/
+*.png
+*.jpg
+*.jpeg
+*.svg
+*.gif
+*.webp
+
+# Git
+.git/
+.gitignore
