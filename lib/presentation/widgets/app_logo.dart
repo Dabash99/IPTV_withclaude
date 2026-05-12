@@ -1,6 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-// import '../../core/constants/app_colors.dart'; // قم بإلغاء التعليق إذا كنت بحاجة إليه
+// import '../../core/constants/app_colors.dart'; // uncomment if color tinting is needed
 
 /// App brand logo — uses an image asset instead of text.
 class AppLogo extends StatelessWidget {
@@ -20,12 +20,11 @@ class AppLogo extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // تأكد من وضع مسار الصورة الصحيح هنا
         Image.asset(
           'assets/images/logo.png',
-          height: size.h, // استخدام ScreenUtil لضبط الحجم
+          height: size.h,
           fit: BoxFit.contain,
-          // color: color, // قم بإلغاء التعليق هنا فقط إذا كانت صورتك شفافة (أيقونة) وتريد تلوينها
+          // color: color, // uncomment only for transparent/icon assets that need tinting
         ),
         if (showTagline) ...[
           SizedBox(height: 2.h),
@@ -52,7 +51,7 @@ class AppLogoHorizontal extends StatelessWidget {
   const AppLogoHorizontal({
     super.key,
     this.color = Colors.white,
-    this.height = 26, // تمت إضافة الحجم للتحكم في ارتفاع الصورة
+    this.height = 26,
   });
 
   @override
@@ -61,12 +60,11 @@ class AppLogoHorizontal extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        // تأكد من وضع مسار الصورة الصحيح هنا
         Image.asset(
           'assets/images/logo.png',
           height: height.h,
           fit: BoxFit.contain,
-          // color: color, // قم بإلغاء التعليق هنا فقط إذا كنت تريد تلوين الصورة
+          // color: color, // uncomment to tint the image
         ),
         SizedBox(width: 6.w),
         Padding(

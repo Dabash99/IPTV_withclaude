@@ -1,7 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 
 class AppColors {
-  // ============ Primary Colors (الهوية) ============
+  // ============ Primary Colors ============
   /// Main Accent - Buttons, Active Icons, Progress Bars
   static const Color primary = Color(0xFF3D5AFF);
   static const Color primaryDark = Color(0xFF2D43CC);
