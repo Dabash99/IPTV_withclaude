@@ -154,7 +154,16 @@
   "player": {
     "error_playback": "Playback failed",
     "error_generic": "Playback error: {msg}",
-    "error_failed": "Failed to play content. Check your server URL."
+    "error_failed": "Failed to play content. Check your server URL.",
+    "sleep_timer": {
+      "title": "Sleep Timer",
+      "off": "Off",
+      "min_15": "15 minutes",
+      "min_30": "30 minutes",
+      "hour_1": "1 hour",
+      "end_of_episode": "End of episode",
+      "end_ep_short": "End Ep"
+    }
   },
   "about": {
     "version": "Version {n}",

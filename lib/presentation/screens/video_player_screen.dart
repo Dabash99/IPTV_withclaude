@@ -76,6 +76,11 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   int _nextEpCountdown = 5;
   Timer? _nextEpTimer;
 
+  // ── Sleep timer ────────────────────────────────────────────────
+  Timer? _sleepTimer;
+  int _sleepTimerSecondsLeft = 0;
+  bool _sleepTimerEndOfEpisode = false;
+
   @override
   void initState() {
     super.initState();
@@ -165,7 +170,12 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       _saveProgress();
     }
     if (event.betterPlayerEventType == BetterPlayerEventType.finished) {
-      if (widget.nextEpisodeUrl != null) _startNextEpCountdown();
+      if (_sleepTimerEndOfEpisode) {
+        setState(() => _sleepTimerEndOfEpisode = false);
+        if (mounted) Navigator.of(context).pop();
+      } else if (widget.nextEpisodeUrl != null) {
+        _startNextEpCountdown();
+      }
     }
   }
 
@@ -206,6 +216,53 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
           contentImage: widget.nextEpisodeImage,
           contentExtension: widget.nextEpisodeExtension,
         ),
+      ),
+    );
+  }
+
+  // ── Sleep timer ───────────────────────────────────────────────
+  void _setSleepTimer(int seconds, {bool endOfEpisode = false}) {
+    _sleepTimer?.cancel();
+    setState(() {
+      _sleepTimerSecondsLeft = seconds;
+      _sleepTimerEndOfEpisode = endOfEpisode;
+    });
+    if (seconds > 0) {
+      _sleepTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        if (!mounted) return;
+        setState(() => _sleepTimerSecondsLeft--);
+        if (_sleepTimerSecondsLeft <= 0) {
+          _sleepTimer?.cancel();
+          _controller?.pause();
+          if (mounted) Navigator.of(context).pop();
+        }
+      });
+    }
+  }
+
+  String _formatSleepRemaining() {
+    final h = _sleepTimerSecondsLeft ~/ 3600;
+    final m = (_sleepTimerSecondsLeft % 3600) ~/ 60;
+    final s = _sleepTimerSecondsLeft % 60;
+    if (h > 0) return '$h:${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
+    return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
+  }
+
+  void _showSleepTimerSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+      ),
+      builder: (sheetCtx) => _SleepTimerSheet(
+        currentSeconds: _sleepTimerSecondsLeft,
+        isEndOfEpisode: _sleepTimerEndOfEpisode,
+        isLive: widget.isLive,
+        onSelect: (seconds, endOfEpisode) {
+          Navigator.pop(sheetCtx);
+          _setSleepTimer(seconds, endOfEpisode: endOfEpisode);
+        },
       ),
     );
   }
@@ -293,6 +350,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   @override
   void dispose() {
     _saveTimer?.cancel();
+    _sleepTimer?.cancel();
     _nextEpTimer?.cancel();
     _indicatorTimer?.cancel();
     _saveProgress();
@@ -326,6 +384,14 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
           overflow: TextOverflow.ellipsis,
         ),
         actions: [
+          IconButton(
+            icon: Icon(
+              Icons.bedtime_outlined,
+              color: (_sleepTimerSecondsLeft > 0 || _sleepTimerEndOfEpisode) ? AppColors.primary : Colors.white,
+              size: 20.sp,
+            ),
+            onPressed: _showSleepTimerSheet,
+          ),
           if (!widget.isLive)
             IconButton(
               icon: Icon(Icons.picture_in_picture_alt, color: Colors.white, size: 20.sp),
@@ -413,6 +479,33 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                   value: _volume,
                   label: '${(_volume * 100).round()}%',
                 )),
+              ),
+            // Sleep timer indicator
+            if (_sleepTimerSecondsLeft > 0 || _sleepTimerEndOfEpisode)
+              Positioned(
+                top: 8.h,
+                right: 8.w,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.7),
+                    borderRadius: BorderRadius.circular(100.r),
+                    border: Border.all(color: AppColors.primary.withValues(alpha: 0.5)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.bedtime, color: AppColors.primary, size: 11.sp),
+                      SizedBox(width: 4.w),
+                      Text(
+                        _sleepTimerEndOfEpisode
+                            ? 'player.sleep_timer.end_ep_short'.tr()
+                            : _formatSleepRemaining(),
+                        style: TextStyle(color: Colors.white, fontSize: 10.sp, fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             // Seek indicator (center-ish)
             if (_showSeek)
@@ -589,6 +682,100 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Sleep Timer Sheet ──────────────────────────────────────────────
+class _SleepTimerSheet extends StatelessWidget {
+  final int currentSeconds;
+  final bool isEndOfEpisode;
+  final bool isLive;
+  final void Function(int seconds, bool endOfEpisode) onSelect;
+
+  const _SleepTimerSheet({
+    required this.currentSeconds,
+    required this.isEndOfEpisode,
+    required this.isLive,
+    required this.onSelect,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final options = [
+      ('player.sleep_timer.off'.tr(), 0, false),
+      ('player.sleep_timer.min_15'.tr(), 900, false),
+      ('player.sleep_timer.min_30'.tr(), 1800, false),
+      ('player.sleep_timer.hour_1'.tr(), 3600, false),
+      if (!isLive) ('player.sleep_timer.end_of_episode'.tr(), 0, true),
+    ];
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 40.w, height: 4.h,
+          margin: EdgeInsets.only(top: 12.h, bottom: 8.h),
+          decoration: BoxDecoration(
+            color: AppColors.border,
+            borderRadius: BorderRadius.circular(100.r),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+          child: Row(
+            children: [
+              Icon(Icons.bedtime_outlined, color: AppColors.primary, size: 20.sp),
+              SizedBox(width: 8.w),
+              Text(
+                'player.sleep_timer.title'.tr(),
+                style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.w700),
+              ),
+            ],
+          ),
+        ),
+        Divider(color: AppColors.border, height: 1),
+        for (final (label, seconds, eoe) in options)
+          _SleepTimerOption(
+            label: label,
+            isSelected: eoe ? isEndOfEpisode : (currentSeconds == seconds && !isEndOfEpisode),
+            onTap: () => onSelect(seconds, eoe),
+          ),
+        SizedBox(height: MediaQuery.of(context).padding.bottom + 16.h),
+      ],
+    );
+  }
+}
+
+class _SleepTimerOption extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _SleepTimerOption({required this.label, required this.isSelected, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: isSelected ? AppColors.primary : Colors.white,
+                  fontSize: 14.sp,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
+                ),
+              ),
+            ),
+            if (isSelected) Icon(Icons.check_circle, color: AppColors.primary, size: 18.sp),
+          ],
         ),
       ),
     );

@@ -2,6 +2,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/network/dio_helper.dart';
 import 'data/datasources/downloads_datasource.dart';
+import 'data/datasources/episode_tracker_datasource.dart';
 import 'data/datasources/favorites_datasource.dart';
 import 'data/datasources/iptv_local_datasource.dart';
 import 'data/datasources/iptv_remote_datasource.dart';
@@ -20,6 +21,7 @@ class AppInjector {
   late final IptvRemoteDataSource remoteDataSource;
   late final IptvLocalDataSource localDataSource;
   late final FavoritesDataSource favoritesDataSource;
+  late final EpisodeTrackerDataSource episodeTrackerDataSource;
   late final WatchHistoryDataSource watchHistoryDataSource;
   late final DownloadsDataSource downloadsDataSource;
   late final IptvRepository repository;
@@ -46,6 +48,7 @@ class AppInjector {
     injector.remoteDataSource = IptvRemoteDataSourceImpl(injector.dioHelper);
     injector.localDataSource = IptvLocalDataSourceImpl(injector.secureStorage);
     injector.favoritesDataSource = FavoritesDataSource(injector.sharedPreferences);
+    injector.episodeTrackerDataSource = EpisodeTrackerDataSource(injector.sharedPreferences);
     injector.watchHistoryDataSource = WatchHistoryDataSource(injector.sharedPreferences);
     injector.downloadsDataSource = DownloadsDataSource(injector.sharedPreferences);
 

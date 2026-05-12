@@ -63,6 +63,10 @@ dependencies:
   screen_brightness: ^0.2.2+1
   volume_controller: ^2.0.7
 
+  # Notifications + Background sync
+  flutter_local_notifications: ^17.2.2
+  workmanager: ^0.5.2
+
   # Utils
   intl: ^0.20.2
   flutter_localizations:
